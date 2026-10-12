@@ -1,1 +1,632 @@
-
+Level,German,Article,Bengali Meaning,English Meaning,Category
+A1,Apfel,der,আপেল,apple,Food & Drinks
+A1,Banane,die,কলা,banana,Food & Drinks
+A1,Brot,das,পাউরুটি,bread,Food & Drinks
+A1,Wasser,das,পানি,water,Food & Drinks
+A1,Milch,die,দুধ,milk,Food & Drinks
+A1,Kaffee,der,কফি,coffee,Food & Drinks
+A1,Tee,der,চা,tea,Food & Drinks
+A1,Käse,der,পনির,cheese,Food & Drinks
+A1,Ei,das,ডিম,egg,Food & Drinks
+A1,Fleisch,das,মাংস,meat,Food & Drinks
+A1,Fisch,der,মাছ,fish,Food & Drinks
+A1,Kartoffel,die,আলু,potato,Food & Drinks
+A1,Reis,der,চাল/ভাত,rice,Food & Drinks
+A1,Suppe,die,সুপ,soup,Food & Drinks
+A1,Schokolade,die,চকলেট,chocolate,Food & Drinks
+A1,Zucker,der,চিনি,sugar,Food & Drinks
+A1,Salz,das,লবণ,salt,Food & Drinks
+A1,Öl,das,তেল,oil,Food & Drinks
+A1,Butter,die,মাখন,butter,Food & Drinks
+A1,Saft,der,জুস/রস,juice,Food & Drinks
+A2,Gemüsesuppe,die,সবজির সুপ,vegetable soup,Food & Drinks
+A2,Mineralwasser,das,মিনারেল ওয়াটার,mineral water,Food & Drinks
+A2,Hähnchen,das,মুরগির মাংস,chicken,Food & Drinks
+A2,Rindfleisch,das,গরুর মাংস,beef,Food & Drinks
+A2,Schweinefleisch,das,শুকোরের মাংস,pork,Food & Drinks
+A2,Wurst,die,সসেজ/মাংসের স্লাইস,sausage,Food & Drinks
+A2,Kuchen,der,কেক,cake,Food & Drinks
+A2,Eis,das,আইসক্রিম,ice cream,Food & Drinks
+A2,Wein,der,ওয়াইন,wine,Food & Drinks
+A2,Bier,das,বিয়ার,beer,Food & Drinks
+A1,Familie,die,পরিবার,family,Family & People
+A1,Vater,der,বাবা,father,Family & People
+A1,Mutter,die,মা,mother,Family & People
+A1,Eltern,die ,বাবা-মা,parents,Family & People
+A1,Sohn,der,ছেলে / পুত্র,son,Family & People
+A1,Tochter,die,মেয়ে / কন্যা,daughter,Family & People
+A1,Bruder,der,ভাই,brother,Family & People
+A1,Schwester,die,বোন,sister,Family & People
+A1,Geschwister,die ,ভাই-বোন,siblings,Family & People
+A1,Großvater,der,দাদা / নানা,grandfather,Family & People
+A1,Großmutter,die,দাদী / নানী,grandmother,Family & People
+A1,Großeltern,die ,দাদা-দাদী / নানা-নানী,grandparents,Family & People
+A1,Kind,das,শিশু / সন্তান,child,Family & People
+A1,Kinder,die ,শিশুরা / ছেলেমেয়েরা,children,Family & People
+A1,Mann,der,পুরুষ / স্বামী,man / husband,Family & People
+A1,Frau,die,নারী / স্ত্রী,woman / wife,Family & People
+A1,Junge,der,ছেলে,boy,Family & People
+A1,Mädchen,das,মেয়ে,girl,Family & People
+A1,Freund,der,বন্ধু (পুরুষ),friend (male),Family & People
+A1,Freundin,die,বন্ধু (নারী),friend (female),Family & People
+A1,Baby,das,শিশু,baby,Family & People
+A1,Person,die,ব্যক্তি,person,Family & People
+A1,Leute,die ,লোকজন,people,Family & People
+A2,Onkel,der,চাচা / মামা / খালু,uncle,Family & People
+A2,Tante,die,চাচী / মামী / খালা,aunt,Family & People
+A2,Cousine,die,খালাতো/চাচাতো বোন,cousin (female),Family & People
+A2,Cousin,der,খালাতো/চাচাতো ভাই,cousin (male),Family & People
+A2,Neffe,der,ভাইপো / ভাগনে,nephew,Family & People
+A2,Nichte,die,ভাইঝি / ভাগনি,niece,Family & People
+A2,Enkel,der,নাতি,grandson,Family & People
+A2,Enkelin,die,নাতনি,granddaughter,Family & People
+A2,Verwandte,die/der,আত্মীয়,relative,Family & People
+A2,Nachbar,der,প্রতিবেশী (পুরুষ),neighbor (male),Family & People
+A2,Nachbarin,die,প্রতিবেশী (নারী),neighbor (female),Family & People
+A2,Partner,der,সঙ্গী (পুরুষ),partner (male),Family & People
+A2,Partnerin,die,সঙ্গী (নারী),partner (female),Family & People
+A2,Kollege,der,সহকর্মী (পুরুষ),colleague (male),Family & People
+A2,Kollegin,die,সহকর্মী (নারী),colleague (female),Family & People
+A2,Gast,der,অতিথি,guest,Family & People
+A2,Jugendliche,der/die,কিশোর / তরুণ,youth / teenager,Family & People
+A1,Haus,das,বাড়ি / ঘর,house,Home & Housing
+A1,Wohnung,die,ফ্ল্যাট / বাসা,apartment / flat,Home & Housing
+A1,Zimmer,das,রুম / ঘর,room,Home & Housing
+A1,Küche,die,রান্নাঘর,kitchen,Home & Housing
+A1,Bad,das,বাথরুম,bathroom,Home & Housing
+A1,Schlafzimmer,das,শোবার ঘর,bedroom,Home & Housing
+A1,Wohnzimmer,das,ড্রয়িং রুম / বসার ঘর,living room,Home & Housing
+A1,Balkon,der,বারান্দা,balcony,Home & Housing
+A1,Garten,der,বাগান,garden,Home & Housing
+A1,Tür,die,দরজা,door,Home & Housing
+A1,Fenster,das,জানালা,window,Home & Housing
+A1,Tisch,der,টেবিল,table,Home & Housing
+A1,Stuhl,der,চেয়ার,chair,Home & Housing
+A1,Bett,das,বিছানা,bed,Home & Housing
+A1,Schrank,der,আলমারি / ড্রয়ার,cupboard / closet,Home & Housing
+A1,Sofas,das,সোফা,sofa,Home & Housing
+A1,Lampe,die,বাতি / ল্যাম্প,lamp,Home & Housing
+A1,Schlüssel,der,চাবি,key,Home & Housing
+A1,Miete,die,ভাড়া,rent,Home & Housing
+A1,Hausnummer,die,হোল্ডিং/বাড়ির নম্বর,house number,Home & Housing
+A2,Stock,der,তলা / ফ্লোর,floor / story,Home & Housing
+A2,Treppe,die,সিড়ি,stairs,Home & Housing
+A2,Aufzug,der,লিফট,elevator / lift,Home & Housing
+A2,Keller,der,বেসমেন্ট / মাটির নিচের ঘর,cellar / basement,Home & Housing
+A2,Dach,das,ছাদ,roof,Home & Housing
+A2,Garage,die,গ্যারেজ,garage,Home & Housing
+A2,Möbel,die ,আসবাবপত্র,furniture,Home & Housing
+A2,Teppich,der,কার্পেট,carpet,Home & Housing
+A2,Spiegel,der,আয়না,mirror,Home & Housing
+A2,Heizung,die,হিটার / হিটিং সিস্টেম,heating,Home & Housing
+A2,Kühlschrank,der,ফ্রিজ,refrigerator / fridge,Home & Housing
+A2,Herd,der,চুলা,stove / cooker,Home & Housing
+A2,Waschmaschine,die,ওয়াশিং মেশিন,washing machine,Home & Housing
+A2,Vermieter,der,বাড়িওয়ালা (পুরুষ),landlord,Home & Housing
+A2,Mieter,der,ভাড়াটিয়া (পুরুষ),tenant,Home & Housing
+A2,Nebenkosten,die ,"ইউটিলিটি বিল (পানি, গ্যাস ইত্যাদি)",utility costs,Home & Housing
+B1,Kaution,die,জামানাত / সিকিউরিটি ডিপোজিট,deposit / caution,Home & Housing
+B1,Mietvertrag,der,বাড়ি ভাড়ার চুক্তিপত্র,rental agreement / lease,Home & Housing
+B1,Kündigung,die,নোটিশ / চুক্তি বাতিল,termination / notice,Home & Housing
+B1,Umzug,der,বাসা পরিবর্তন,relocation / move,Home & Housing
+B1,Einrichtung,die,ভেতরের সাজসজ্জা / ফার্নিচার,interior furnishings,Home & Housing
+B1,Zustand,der,অবস্থা (বাসার),condition,Home & Housing
+B1,Renovierung,die,সংস্কার / মেরামত,renovation,Home & Housing
+B1,Erdgeschoss,das,নিচতলা,ground floor,Home & Housing
+B1,Dachgeschoss,das,চিলেকোঠা / ওপরের তলা,attic / top floor,Home & Housing
+B1,Haushalt,der,গৃহস্থালি,household,Home & Housing
+B1,Steckdose,die,সকেট / প্লাগ পয়েন্ট,electrical socket,Home & Housing
+B1,Mülltrennung,die,ময়লা পৃথকীকরণ,waste separation,Home & Housing
+A1,Schule,die,স্কুল / বিদ্যালয়,school,Education
+A1,Lehrer,der,শিক্ষক (পুরুষ),teacher (male),Education
+A1,Lehrerin,die,শিক্ষিকা (নারী),teacher (female),Education
+A1,Schüler,der,ছাত্র,student / pupil (male),Education
+A1,Schülerin,die,ছাত্রী,student / pupil (female),Education
+A1,Klasse,die,শ্রেণী / ক্লাস,class / grade,Education
+A1,Kurs,der,কোর্স,course,Education
+A1,Buch,das,বই,book,Education
+A1,Stift,der,কলম / পেন্সিল,pen / pencil,Education
+A1,Wort,das,শব্দ,word,Education
+A1,Satz,der,বাক্য,sentence,Education
+A1,Sprache,die,ভাষা,language,Education
+A1,Aufgabe,die,কাজ / অনুশীলন,task / exercise,Education
+A1,Hausaufgabe,die,হোমওয়ার্ক / বাড়ির কাজ,homework,Education
+A1,Prüfung,die,পরীক্ষা,exam / test,Education
+A1,Antwort,die,উত্তর,answer,Education
+A1,Frage,die,প্রশ্ন,question,Education
+A1,Papier,das,কাগজ,paper,Education
+A2,Universität,die,বিশ্ববিদ্যালয়,university,Education
+A2,Hochschule,die,উচ্চশিক্ষা প্রতিষ্ঠান / কলেজ,college / higher institute,Education
+A2,Student,der,বিশ্ববিদ্যালয়ের ছাত্র,university student (male),Education
+A2,Studentin,die,বিশ্ববিদ্যালয়ের ছাত্রী,university student (female),Education
+A2,Unterricht,der,পাঠদান / ক্লাস,lesson / instruction,Education
+A2,Thema,das,বিষয় / টপিক,topic / subject,Education
+A2,Text,der,টেক্সট / মূল পাঠ,text,Education
+A2,Wörterbuch,das,অভিধান / ডিকশনারি,dictionary,Education
+A2,Zeugnis,das,নম্বরপত্র / সার্টিফিকেট,report card / certificate,Education
+A2,Note,die,পরীক্ষার গ্রেড / নম্বর,grade / mark,Education
+A2,Fehler,der,ভুল,mistake / error,Education
+A2,Pause,die,বিরতি / টিফিন,break / recess,Education
+A2,Studium,das,উচ্চশিক্ষা / পড়াশোনা,academic studies,Education
+A2,Fach,das,পড়াশোনার বিষয়,subject,Education
+B1,Ausbildung,die,বৃত্তিমূলক প্রশিক্ষণ / ভোকেশনাল কোর্স,vocational training,Education
+B1,Bildung,die,শিক্ষা,education,Education
+B1,Weiterbildung,die,উচ্চতর/অতিরিক্ত শিক্ষা,further education,Education
+B1,Semester,das,সেমিস্টার,semester,Education
+B1,Vorlesung,die,লেকচার / বক্তৃতা,lecture,Education
+B1,Stipendium,das,শিক্ষাবৃত্তি / স্কলারশিপ,scholarship,Education
+B1,Abschluss,die / der,ডিগ্রি / পড়াশোনা সমাপ্তি,degree / graduation,Education
+B1,Kenntnis,die,জ্ঞান / দক্ষতা,knowledge / skill,Education
+B1,Bibliothek,die,পাঠাগার / লাইব্রেরি,library,Education
+B1,Wissenschaft,die,বিজ্ঞান / গবেষণা,science,Education
+B1,Praxis,die,ব্যবহারিক প্রয়োগ / প্র্যাকটিস,practice / practical experience,Education
+B1,Ergebnis,das,ফলাফল,result,Education
+A1,Arbeit,die,কাজ / চাকরি,work / job,Work & Career
+A1,Beruf,der,পেশা,profession / occupation,Work & Career
+A1,Job,der,চাকরি,job,Work & Career
+A1,Chef,der,বস / প্রধান (পুরুষ),boss (male),Work & Career
+A1,Chefin,die,বস / প্রধান (নারী),boss (female),Work & Career
+A1,Firma,die,কোম্পানি / প্রতিষ্ঠান,company / firm,Work & Career
+A1,Büro,das,অফিস,office,Work & Career
+A1,Kollege,der,সহকর্মী (পুরুষ),colleague (male),Work & Career
+A1,Kollegin,die,সহকর্মী (নারী),colleague (female),Work & Career
+A1,Termin,der,অ্যাপয়েন্টমেন্ট / নির্দিষ্ট সময়,appointment,Work & Career
+A1,Pause,die,কাজের বিরতি,break,Work & Career
+A1,Geld,das,টাকা / অর্থ,money,Work & Career
+A2,Arbeitsplatz,der,কর্মস্থল,workplace,Work & Career
+A2,Gehalt,das,বেতন,salary / pay,Work & Career
+A2,Lohn,der,মজুরি / পারিশ্রমিক,wage,Work & Career
+A2,Vertrag,der,চুক্তিপত্র,contract,Work & Career
+A2,Anzeige,die,বিজ্ঞাপন (চাকরির),advertisement,Work & Career
+A2,Bewerbung,die,চাকরির আবেদন,job application,Work & Career
+A2,Chefärztin,die,প্রধান চিকিৎসক (নারী),chief physician (female),Work & Career
+A2,Erfahrung,die,অভিজ্ঞতা,experience,Work & Career
+A2,Arbeitszeit,die,কাজের সময়সূচি,working hours,Work & Career
+A2,Überstunde,die,ওভারটাইম / অতিরিক্ত কাজ,overtime,Work & Career
+A2,Urlaub,der,ছুটি,vacation / leave,Work & Career
+B1,Karriere,die,ক্যারিয়ার / কর্মজীবন,career,Work & Career
+B1,Lebenslauf,der,জীবনবৃত্তান্ত / সিভি,CV / resume,Work & Career
+B1,Vorstellungsgespräch,das,চাকরির ইন্টারভিউ,job interview,Work & Career
+B1,Vorstellungsgespräche,die ,চাকরির ইন্টারভিউসমূহ,job interviews,Work & Career
+B1,Arbeitgeber,der,নিয়োগকর্তা / মালিক,employer,Work & Career
+B1,Arbeitnehmer,der,কর্মচারী / কর্মী,employee,Work & Career
+B1,Kündigung,die,ইস্তফা / বরখাস্ত,termination / resignation,Work & Career
+B1,Gehaltserhöhung,die,বেতন বৃদ্ধি,pay raise,Work & Career
+B1,Beförderung,die,পদোন্নতি,promotion,Work & Career
+B1,Abteilung,die,বিভাগ / ডিপার্টমেন্ট,department,Work & Career
+B1,Selbstständigkeit,die,আত্মকর্মসংস্থান / ফ্রিল্যান্সিং,self-employment,Work & Career
+B1,Fortbildung,die,পেশাগত প্রশিক্ষণ,professional training,Work & Career
+A1,Körper,der,শরীর / দেহ,body,Health & Body
+A1,Kopf,der,মাথা,head,Health & Body
+A1,Auge,das,চোখ,eye,Health & Body
+A1,Ohr,das,কান,ear,Health & Body
+A1,Nase,die,নাক,nose,Health & Body
+A1,Mund,der,মুখ,mouth,Health & Body
+A1,Zahn,der,দাঁত,tooth,Health & Body
+A1,Hand,die,হাত (কব্জি থেকে আঙুল),hand,Health & Body
+A1,Arm,der,বাহু / হাত,arm,Health & Body
+A1,Bein,das,পা,leg,Health & Body
+A1,Fuß,der,পায়ের পাতা,foot,Health & Body
+A1,Bauch,der,পেট,stomach / belly,Health & Body
+A1,Rücken,der,পিঠ,back,Health & Body
+A1,Arzt,der,ডাক্তার (পুরুষ),doctor (male),Health & Body
+A1,Ärztin,die,ডাক্তার (নারী),doctor (female),Health & Body
+A1,Praxis,die,ডাক্তারের চেম্বার / ক্লিনিক,doctor's surgery / practice,Health & Body
+A1,Krankenhaus,das,হাসপাতাল,hospital,Health & Body
+A1,Medikament,das,ওষুধ,medicine / medication,Health & Body
+A1,Schmerz,der,ব্যথা / বেদনা,pain,Health & Body
+A1,Fieber,das,জ্বর,fever,Health & Body
+A2,Hals,der,গলা / ঘাড়,throat / neck,Health & Body
+A2,Finger,der,হাতের আঙুল,finger,Health & Body
+A2,Haar,das,চুল,hair,Health & Body
+A2,Gesicht,das,মুখমণ্ডল / চেহারা,face,Health & Body
+A2,Herz,das,হৃদয় / হৃৎপিণ্ড,heart,Health & Body
+A2,Gesundheit,die,স্বাস্থ্য,health,Health & Body
+A2,Krankheit,die,অসুস্থতা / রোগ,illness / disease,Health & Body
+A2,Grippe,die,ইনফ্লুয়েঞ্জা / ফ্লু,flu,Health & Body
+A2,Husten,der,কাশি,cough,Health & Body
+A2,Schnupfen,der,ঠান্ডা / সর্দি,runny nose / cold,Health & Body
+A2,Rezept,das,প্রেসক্রিপশন / ডাক্তারের ব্যবস্থাপত্র,prescription,Health & Body
+A2,Apotheke,die,ফার্মেসি / ওষুধের দোকান,pharmacy,Health & Body
+A2,Terminkarte,die,অ্যাপয়েন্টমেন্ট কার্ড,appointment card,Health & Body
+A2,Untersuchung,die,শারীরিক পরীক্ষা,medical examination,Health & Body
+B1,Blut,das,রক্ত,blood,Health & Body
+B1,Blutdruck,der,রক্তচাপ / ব্লাড প্রেসার,blood pressure,Health & Body
+B1,Verletzung,die,আঘাত / জখম,injury,Health & Body
+B1,Wunde,die,ক্ষত / ঘা,wound,Health & Body
+B1,Besserung,die,সুস্থতা / আরোগ্য,recovery / improvement,Health & Body
+B1,Versicherung,die,স্বাস্থ্য বীমা,health insurance,Health & Body
+B1,Operation,die,অস্ত্রোপচার / অপারেশন,surgery / operation,Health & Body
+B1,Notfall,der,জরুরি অবস্থা,emergency,Health & Body
+B1,Pflege,die,সেবা / যত্ন,care / nursing,Health & Body
+B1,Therapie,die,থেরাপি / চিকিৎসা,therapy,Health & Body
+A1,Reise,die,ভ্রমণ / যাত্রা,trip / journey,Travel & Transport
+A1,Auto,das,গাড়ি,car,Travel & Transport
+A1,Bus,der,বাস,bus,Travel & Transport
+A1,Bahn,die,ট্রেন / রেলপথ,train / railway,Travel & Transport
+A1,Zug,der,ট্রেন,train,Travel & Transport
+A1,Flugzeug,das,উড়োজাহাজ / বিমান,airplane,Travel & Transport
+A1,Fahrrad,das,সাইকেল,bicycle,Travel & Transport
+A1,Bahnhof,der,ট্রেন স্টেশন,train station,Travel & Transport
+A1,Flughafen,der,বিমানবন্দর,airport,Travel & Transport
+A1,Haltestelle,die,বাস/ট্রাম স্টপ,bus/tram stop,Travel & Transport
+A1,Ticket,das,টিকিট,ticket,Travel & Transport
+A1,Fahrkarte,die,যাতায়াতের টিকিট,ticket / pass,Travel & Transport
+A1,Hotel,das,হোটেল,hotel,Travel & Transport
+A1,Koffer,der,ট্রাভেল ব্যাগ / স্যুটকেস,suitcase,Travel & Transport
+A1,Tasche,die,ব্যাগ,bag,Travel & Transport
+A1,Weg,der,পথ / রাস্তা,way / path,Travel & Transport
+A1,Straße,die,সড়ক / রাস্তা,street / road,Travel & Transport
+A2,Abfahrt,die,প্রস্থান (যানবাহনের),departure,Travel & Transport
+A2,Ankunft,die,আগমন / পৌঁছানো,arrival,Travel & Transport
+A2,Verspätung,die,দেরি / বিলম্ব,delay,Travel & Transport
+A2,Anschluss,der,কানেক্টিং ফ্লাইট/ট্রেন,connection,Travel & Transport
+A2,Gleis,das,প্ল্যাটফর্ম / ট্রেনের ট্র্যাক,platform / track,Travel & Transport
+A2,Auskunft,die,তথ্যকেন্দ্র / ইনফরমেশন desk,information desk,Travel & Transport
+A2,Fahrplan,der,সময়সূচি (যানবাহনের),timetable / schedule,Travel & Transport
+A2,Pass,der,পাসপোর্ট,passport,Travel & Transport
+A2,Gepäck,das,লাগেজ / মালামাল,luggage / baggage,Travel & Transport
+A2,Unterkunft,die,থাকার জায়গা / বাসস্থান,accommodation,Travel & Transport
+A2,Buchung,die,বুকিং / সংরক্ষণ,booking / reservation,Travel & Transport
+A2,Verkehr,der,যানবাহন / ট্রাফিক,traffic / transport,Travel & Transport
+A2,U-Bahn,die,পাতাল রেল / সাবওয়ে,underground / subway,Travel & Transport
+A2,S-Bahn,die,শহরের লোকাল ট্রেন,suburban train,Travel & Transport
+B1,Verspätung,die,বিলম্ব (যানবাহনের),delay,Travel & Transport
+B1,Aufenthalt,der,অবস্থান / যাত্রাবিরতি,stopover / stay,Travel & Transport
+B1,Zolldeklaration,die,শুল্ক ঘোষণা / কাস্টমস,customs declaration,Travel & Transport
+B1,Reiserücktrittsversicherung,die,ভ্রমণ বাতিল বীমা,travel cancellation insurance,Travel & Transport
+B1,Verkehrsmittel,das,পরিবহনের মাধ্যম,means of transport,Travel & Transport
+B1,Mietwagen,der,ভাড়ার গাড়ি,rental car,Travel & Transport
+B1,Stau,der,ট্রাফিক জ্যাম,traffic jam,Travel & Transport
+B1,Umleitung,die,বিকল্প পথ / ডাইভারশন,detour / diversion,Travel & Transport
+B1,Grenzkontrolle,die,সীমান্ত চেকপোস্ট,border control,Travel & Transport
+B1,Ziel,das,গন্তব্য,destination,Travel & Transport
+A1,Geld,das,টাকা / অর্থ,money,Shopping & Money
+A1,Euro,der,ইউরো (ইউরোপীয় মুদ্রা),euro,Shopping & Money
+A1,Cent,der,সেন্ট (ইউরোর ভগ্নাংশ),cent,Shopping & Money
+A1,Preis,der,দাম / মূল্য,price,Shopping & Money
+A1,Laden,der,দোকান,shop / store,Shopping & Money
+A1,Geschäft,das,দোকান / ব্যবসা,shop / business,Shopping & Money
+A1,Supermarkt,der,সুপারমার্কেট,supermarket,Shopping & Money
+A1,Markt,der,বাজার,market,Shopping & Money
+A1,Kasse,die,ক্যাশ কাউন্টার / ক্যাশ বাক্স,cash desk / till,Shopping & Money
+A1,Rechnung,die,রসিদ / বিল,bill / invoice,Shopping & Money
+A1,Angebot,das,বিশেষ ছাড় / অফার,offer / deal,Shopping & Money
+A1,Prospekt,der,ব্রোশার / ক্যাটালগ,brochure / flyer,Shopping & Money
+A1,Karte,die,কার্ড (ডেবিট/ক্রেডিট),card,Shopping & Money
+A2,Einkauf,der,কেনাকাটা,purchase / shopping,Shopping & Money
+A2,Einkaufszentrum,das,শপিং মল,shopping center,Shopping & Money
+A2,Kunde,der,ক্রেতা / গ্রাহক (পুরুষ),customer / client (male),Shopping & Money
+A2,Kundin,die,ক্রেতা / গ্রাহক (নারী),customer / client (female),Shopping & Money
+A2,Verkäufer,der,বিক্রেতা (পুরুষ),shop assistant (male),Shopping & Money
+A2,Verkäuferin,die,বিক্রেতা (নারী),shop assistant (female),Shopping & Money
+A2,Kassenzettel,der,কেনাকাটার মেমো / রসিদ,receipt,Shopping & Money
+A2,Rabatt,der,ছাড় / ডিসকাউন্ট,discount,Shopping & Money
+A2,Bares,das ,নগদ টাকা,cash,Shopping & Money
+A2,Bank,die,ব্যাংক,bank,Shopping & Money
+A2,Konto,das,ব্যাংক অ্যাকাউন্ট,bank account,Shopping & Money
+A2,EC-Karte,die,ডেবিট কার্ড,debit card,Shopping & Money
+A2,Geldautomat,der,এটিএম বুথ,ATM,Shopping & Money
+A2,Größe,die,সাইজ / মাপ (পোশাকের),size,Shopping & Money
+A2,Tüte,die,প্লাস্টিক/কাগজের ব্যাগ,shopping bag,Shopping & Money
+B1,Kreditkarte,die,ক্রেডিট কার্ড,credit card,Shopping & Money
+B1,Überweisung,die,ব্যাংক ট্রান্সফার,bank transfer,Shopping & Money
+B1,Zinsen,die ,সুদ / ইন্টারেস্ট,interest,Shopping & Money
+B1,Währung,die,মুদ্রা,currency,Shopping & Money
+B1,Schulden,die ,ঋণ / দেনা,debts,Shopping & Money
+B1,Gebühr,die,ফি / চার্জ,fee / charge,Shopping & Money
+B1,Sparbuch,das,সঞ্চয়ী হিসাবের বই,savings book,Shopping & Money
+B1,Betrag,der,অর্থের পরিমাণ,amount,Shopping & Money
+B1,Quittung,die,মানি রিসিভ / ক্যাশ মেমো,receipt,Shopping & Money
+B1,Garantie,die,ওয়ারেন্টি / গ্যারান্টি,warranty / guarantee,Shopping & Money
+B1,Umtausch,der,পণ্য পরিবর্তন / এক্সচেঞ্জ,exchange / return,Shopping & Money
+B1,Reklamation,die,অভিযোগ / রিটার্ন দাবি,complaint / claim,Shopping & Money
+B1,Schnäppchen,das,বিশেষ আকর্ষণীয় দামে কেনাকাটা,bargain,Shopping & Money
+A1,Zeit,die,সময়,time,Time & Calendar
+A1,Uhr,die,ঘড়ি / টা (সময়),clock / o'clock,Time & Calendar
+A1,Stunde,die,ঘণ্টা (মেয়াদ),hour,Time & Calendar
+A1,Minute,die,মিনিট,minute,Time & Calendar
+A1,Sekunde,die,সেকেন্ড,second,Time & Calendar
+A1,Tag,der,দিন,day,Time & Calendar
+A1,Woche,die,সপ্তাহ,week,Time & Calendar
+A1,Monat,der,মাস,month,Time & Calendar
+A1,Jahr,das,বছর,year,Time & Calendar
+A1,Morgen,der,সকাল,morning,Time & Calendar
+A1,Vormittag,der,পূর্বাহ্ন / দুপুর ১টার আগে,morning / forenoon,Time & Calendar
+A1,Mittag,der,দুপুর,noon / midday,Time & Calendar
+A1,Nachmittag,der,বিকাল,afternoon,Time & Calendar
+A1,Abend,der,সন্ধ্যা,evening,Time & Calendar
+A1,Nacht,die,রাত,night,Time & Calendar
+A1,Kalender,der,ক্যালেন্ডার,calendar,Time & Calendar
+A1,Datum,das,তারিখ,date,Time & Calendar
+A1,Heute,das,আজ,today,Time & Calendar
+A1,Morgen,das,আগামীকাল,tomorrow,Time & Calendar
+A1,Gestern,das,গতকাল,yesterday,Time & Calendar
+A2,Montag,der,সোমবার,Monday,Time & Calendar
+A2,Dienstag,der,মঙ্গলবার,Tuesday,Time & Calendar
+A2,Mittwoch,der,বুধবার,Wednesday,Time & Calendar
+A2,Donnerstag,der,বৃহস্পতিবার,Thursday,Time & Calendar
+A2,Freitag,der,শুক্রবার,Friday,Time & Calendar
+A2,Samstag,der,শনিবার,Saturday,Time & Calendar
+A2,Sonntag,der,রবিবার,Sunday,Time & Calendar
+A2,Wochenende,das,ছুটির দিন / উইকেন্ড,weekend,Time & Calendar
+A2,Frühling,der,বসন্তকাল,spring,Time & Calendar
+A2,Sommer,der,গ্রীষ্মকাল,summer,Time & Calendar
+A2,Herbst,der,শরৎকাল,autumn / fall,Time & Calendar
+A2,Winter,der,শীতকাল,winter,Time & Calendar
+A2,Jahreszeit,die,ঋতু,season,Time & Calendar
+A2,Termin,der,নির্ধারিত সময় / অ্যাপয়েন্টমেন্ট,appointment,Time & Calendar
+A2,Dauer,die,স্থায়ীত্ব / সময়কাল,duration,Time & Calendar
+B1,Vergangenheit,die,অতীত,past,Time & Calendar
+B1,Gegenwart,die,বর্তমান,present,Time & Calendar
+B1,Zukunft,die,ভবিষ্যৎ,future,Time & Calendar
+B1,Zeitraum,der,নির্দিষ্ট সময়সীমা,period of time,Time & Calendar
+B1,Frist,die,শেষ সময় / ডেডলাইন,deadline / limit,Time & Calendar
+B1,Zeitplan,der,সময়সূচি,schedule / timetable,Time & Calendar
+B1,Feiertag,der,সরকারি ছুটির দিন,public holiday,Time & Calendar
+B1,Pünktlichkeit,die,সময়ানুবর্তিতা,punctuality,Time & Calendar
+B1,Jahrhundert,das,শতাব্দী,century,Time & Calendar
+A1,Wetter,das,আবহাওয়া,weather,Nature & Weather
+A1,Sonne,die,সূর্য,sun,Nature & Weather
+A1,Regen,der,বৃষ্টি,rain,Nature & Weather
+A1,Wind,der,বাতাস,wind,Nature & Weather
+A1,Schnee,der,বরফ / তুষার,snow,Nature & Weather
+A1,Grad,das,ডিগ্রি (তাপমাত্রা),degree,Nature & Weather
+A1,Baum,der,গাছ,tree,Nature & Weather
+A1,Blume,die,ফুল,flower,Nature & Weather
+A1,Tier,das,প্রাণী / পশু,animal,Nature & Weather
+A1,Hund,der,কুকুর,dog,Nature & Weather
+A1,Katze,die,বিড়াল,cat,Nature & Weather
+A1,Vogel,der,পাখি,bird,Nature & Weather
+A1,Wasser,das,পানি,water,Nature & Weather
+A1,Land,das,দেশ / গ্রাম্য এলাকা,country / countryside,Nature & Weather
+A2,Natur,die,প্রকৃতি,nature,Nature & Weather
+A2,Wolke,die,মেঘ,cloud,Nature & Weather
+A2,Himmel,der,আকাশ,sky,Nature & Weather
+A2,Luft,die,বাতাস / বায়ু,air,Nature & Weather
+A2,Kälte,die,ঠান্ডা,cold,Nature & Weather
+A2,Hitze,die,প্রচণ্ড গরম / উত্তাপ,heat,Nature & Weather
+A2,Temperatur,die,তাপমাত্রা,temperature,Nature & Weather
+A2,Gewitter,das,বজ্রঝড়,thunderstorm,Nature & Weather
+A2,Stern,der,তারা / নক্ষত্র,star,Nature & Weather
+A2,Mond,der,চাঁদ,moon,Nature & Weather
+A2,Meer,das,সমুদ্র,sea / ocean,Nature & Weather
+A2,See,der,হ্রদ / লেক,lake,Nature & Weather
+A2,Fluss,der,নদী,river,Nature & Weather
+A2,Berg,der,পাহাড় / পর্বত,mountain,Nature & Weather
+A2,Wald,der,বন / জঙ্গল,forest,Nature & Weather
+A2,Strand,der,সমুদ্রসৈকত,beach,Nature & Weather
+B1,Klima,das,জলবায়ু,climate,Nature & Weather
+B1,Umwelt,die,পরিবেশ,environment,Nature & Weather
+B1,Umweltschutz,der,পরিবেশ সংরক্ষণ,environmental protection,Nature & Weather
+B1,Vorhersage,die,পূর্বাভাস,forecast,Nature & Weather
+B1,Wettervorhersage,die,আবহাওয়া পূর্বাভাস,weather forecast,Nature & Weather
+B1,Sturm,der,ঝড়,storm,Nature & Weather
+B1,Nebel,der,কুয়াশা,fog / mist,Nature & Weather
+B1,Eis,das,বরফ,ice,Nature & Weather
+B1,Schatten,der,ছায়া,shade / shadow,Nature & Weather
+B1,Katastrophe,die,দুর্যোগ / বিপর্যয়,disaster,Nature & Weather
+B1,Erwärmung,die,উষ্ণায়ন,warming,Nature & Weather
+B1,Müll,der,ময়লা / বর্জ্য,waste / trash,Nature & Weather
+A1,Firma,die,কোম্পানি / ফার্ম,company / firm,Business & Trade
+A1,Kunde,der,গ্রাহক / কাস্টমার (পুরুষ),customer / client (male),Business & Trade
+A1,Kundin,die,গ্রাহক / কাস্টমার (নারী),customer / client (female),Business & Trade
+A1,Preis,der,দাম / মূল্য,price,Business & Trade
+A1,Product,das,পণ্য / প্রোডাক্ট,product,Business & Trade
+A1,Geschäft,das,দোকান / ব্যবসা,shop / business,Business & Trade
+A1,Markt,der,বাজার,market,Business & Trade
+A1,Verkauf,der,বিক্রি / সেল,sale,Business & Trade
+A1,Kauf,der,ক্রয় / কেনাকাটা,purchase,Business & Trade
+A2,Angebot,das,অফার / কোটেশন,offer / quotation,Business & Trade
+A2,Auftrag,der,অর্ডার / কার্যাদেশ,order / job,Business & Trade
+A2,Vertrag,der,চুক্তিপত্র / কন্টাক্ট,contract / agreement,Business & Trade
+A2,Lieferung,die,ডেলিভারি / সরবরাহ,delivery,Business & Trade
+A2,Rechnung,die,ইনভয়েস / বিল,invoice / bill,Business & Trade
+A2,Ware,die,পণ্য / মালামাল,goods / merchandise,Business & Trade
+A2,Export,der,রপ্তানি,export,Business & Trade
+A2,Import,der,আমদানি,import,Business & Trade
+A2,Messe,die,বাণিজ্য মেলা / এক্সপো,trade fair / exhibition,Business & Trade
+B1,Handel,der,বাণিজ্য / ব্যবসা-বাণিজ্য,trade / commerce,Business & Trade
+B1,Wirtschaft,die,অর্থনীতি / ইকোনমি,economy,Business & Trade
+B1,Verhandlung,die,দরকষাকষি / আলোচনা,negotiation,Business & Trade
+B1,Gewinn,der,লাভ / প্রফিট,profit,Business & Trade
+B1,Verlust,der,ক্ষতি / লোকসান,loss,Business & Trade
+B1,Konkurrenz,die,প্রতিযোগিতা / প্রতিদ্বন্দ্বী,competition,Business & Trade
+B1,Qualität,die,মান / কোয়ালিটি,quality,Business & Trade
+B1,Umsatz,der,টার্নওভার / বিক্রি মোট পরিমাণ,turnover / sales volume,Business & Trade
+B1,Steuer,die,কর / ট্যাক্স,tax,Business & Trade
+B1,Investition,die,বিনিয়োগ,investment,Business & Trade
+B1,Produktion,die,উৎপাদন / প্রোডাকশন,production,Business & Trade
+B1,Marketing,das,বাজারজাতকরণ / মার্কেটিং,marketing,Business & Trade
+A1,Handy,das,মোবাইল ফোন,mobile phone / cell phone,Technology
+A1,Computer,der,কম্পিউটার,computer,Technology
+A1,Laptop,der,ল্যাপটপ,laptop,Technology
+A1,Internet,das,ইন্টারনেট,internet,Technology
+A1,E-Mail,die,ইমেইল,email,Technology
+A1,Radio,das,রেডিও,radio,Technology
+A1,Fernseher,der,টেলিভিশন / টিভি,television / TV,Technology
+A1,Telefon,das,টেলিফোন,telephone,Technology
+A1,Nummern,die,নম্বরসমূহ,numbers,Technology
+A2,Bildschirm,der,স্ক্রিন / মনিটর,screen / monitor,Technology
+A2,Tastatur,die,কিবোর্ড,keyboard,Technology
+A2,Maus,die,মাউস,mouse,Technology
+A2,Drucker,der,প্রিন্টার,printer,Technology
+A2,Kabel,das,কেবল / তার,cable / wire,Technology
+A2,Akku,der,ব্যাটারি (রিচার্জেবল),rechargeable battery,Technology
+A2,Passwort,das,পাসওয়ার্ড,password,Technology
+A2,Website,die,ওয়েবসাইট,website,Technology
+A2,App,die,অ্যাপ / অ্যাপ্লিকেশন,app / application,Technology
+A2,Nachrichten,die,বার্তা / সংবাদ,messages / news,Technology
+A2,Kamera,die,ক্যামেরা,camera,Technology
+B1,Datei,die,ফাইল / ডকুমেন্ট,file / document,Technology
+B1,Netzwerk,das,নেটওয়ার্ক,network,Technology
+B1,Software,die,সফটওয়্যার,software,Technology
+B1,Festplatte,die,হার্ডডিস্ক,hard drive / hard disk,Technology
+B1,Speicher,der,মেমরি / স্টোরেজ,memory / storage,Technology
+B1,Verbindung,die,সংযোগ / কানেকশন,connection,Technology
+B1,Sicherheit,die,নিরাপত্তা / সিকিউরিটি,security,Technology
+B1,Datenschutz,der,ডাটা সুরক্ষা / প্রাইভেসি,data protection / privacy,Technology
+B1,Entwicklung,die,ডেভেলপমেন্ট / বিকাশ,development,Technology
+B1,Gerät,das,ডিভাইস / যন্ত্র,device / appliance,Technology
+B1,Suchmaschine,die,সার্চ ইঞ্জিন,search engine,Technology
+B1,Soziale Medien,die,সোশ্যাল মিডিয়া,social media,Technology
+A1,Tag,der,দিন,day,Daily Life
+A1,Alltag,der,দৈনন্দিন জীবন,daily routine / everyday life,Daily Life
+A1,Morgen,der,সকাল,morning,Daily Life
+A1,Abend,der,সন্ধ্যা,evening,Daily Life
+A1,Nacht,die,রাত,night,Daily Life
+A1,Frühstück,das,সকালের নাস্তা,breakfast,Daily Life
+A1,Mittagessen,das,দুপুরের খাবার,lunch,Daily Life
+A1,Abendessen,das,রাতের খাবার,dinner,Daily Life
+A1,Pause,die,বিরতি,break,Daily Life
+A1,Freizeit,die,অবসর সময়,free time / leisure,Daily Life
+A1,Uhr,die,ঘড়ি / সময়,clock / o'clock,Daily Life
+A1,Musik,die,সংগীত / গান,music,Daily Life
+A1,Sport,der,খেলাধুলা,sports,Daily Life
+A1,Hobby,das,শখ,hobby,Daily Life
+A1,Nachbar,der,প্রতিবেশী,neighbor,Daily Life
+A2,Routine,die,রুটিন / নিয়মিত অভ্যাস,routine,Daily Life
+A2,Gewohnheit,die,অভ্যাস,habit,Daily Life
+A2,Wecker,der,অ্যালার্ম ঘড়ি,alarm clock,Daily Life
+A2,Zeitschriften,die,ম্যাগাজিনসমূহ,magazines,Daily Life
+A2,Zeitung,die,সংবাদপত্র / পত্রিকা,newspaper,Daily Life
+A2,Einkäufe,die,বাজার / কেনাকাটা,shopping / groceries,Daily Life
+A2,Haushalt,der,গৃহস্থালির কাজ,household,Daily Life
+A2,Müll,der,ময়লা / আবর্জনা,trash / garbage,Daily Life
+A2,Geschirr,das,থালাবাসন,dishes / tableware,Daily Life
+A2,Post,die,ডাকপত্র / মেইল,mail / post,Daily Life
+A2,Brief,der,চিঠি,letter,Daily Life
+A2,Fernsehen,das,টেলিভিশন দেখা / টিভি,watching TV / television,Daily Life
+A2,Verabredung,die,দেখা করার সময় / অ্যাপয়েন্টমেন্ট,appointment / date,Daily Life
+B1,Lebensstil,der,জীবনধারা / লাইফস্টাইল,lifestyle,Daily Life
+B1,Tagesablauf,der,দিনের কাজের ক্রম / ডেইলি শিডিউল,daily routine / schedule,Daily Life
+B1,Pünktlichkeit,die,সময়ানুবর্তিতা,punctuality,Daily Life
+B1,Verantwortung,die,দায়িত্ব,responsibility,Daily Life
+B1,Pflicht,die,কর্তব্য / বাধ্যবাধকতা,duty / obligation,Daily Life
+B1,Erholung,die,বিশ্রাম / রিফ্রেশমেন্ট,relaxation / recovery,Daily Life
+B1,Stress,der,মানসিক চাপ / স্ট্রেস,stress,Daily Life
+B1,Ordnung,die,শৃঙ্খলা / পরিপাটি ভাব,order / tidiness,Daily Life
+B1,Saubermachen,das,পরিষ্কার পরিচ্ছন্নতা,cleaning,Daily Life
+B1,Betreuung,die,দেখভাল / যত্ন নেওয়া,care / supervision,Daily Life
+A1,Name,der,নাম,name,Communication
+A1,Wort,das,শব্দ,word,Communication
+A1,Satz,der,বাক্য,sentence,Communication
+A1,Frage,die,প্রশ্ন,question,Communication
+A1,Antwort,die,উত্তর,answer,Communication
+A1,Brief,der,চিঠি,letter,Communication
+A1,E-Mail,die,ইমেইল,email,Communication
+A1,Telefon,das,টেলিফোন,telephone,Communication
+A1,Nummer,die,নম্বর,number,Communication
+A1,Sprache,die,ভাষা,language,Communication
+A1,Gruß,der,সম্ভাষণ / শুভেচ্ছা,greeting,Communication
+A2,Nachricht,die,বার্তা / মেসেজ,message / news,Communication
+A2,Information,die,তথ্য / ইনফরমেশন,information,Communication
+A2,Gespräch,das,কথা / কথোপকথন,conversation / talk,Communication
+A2,Anruf,der,ফোন কল,phone call,Communication
+A2,Postkarte,die,পোস্টকার্ড,postcard,Communication
+A2,Meinung,die,মতামত,opinion,Communication
+A2,Thema,das,বিষয় / বিষয়বস্তু,topic / subject,Communication
+A2,SMS,die,বার্তা / খুদে বার্তা,text message / SMS,Communication
+A2,Antwortkarte,die,উত্তরপত্র / রিপ্লাই কার্ড,reply card,Communication
+B1,Diskussion,die,আলোচনা / বিতর্ক,discussion,Communication
+B1,Beratung,die,পরামর্শ / কনসাল্টেশন,consultation / advice,Communication
+B1,Mitteilung,die,নোটিশ / বিজ্ঞপ্তি,notification / announcement,Communication
+B1,Vorschlag,der,প্রস্তাব,suggestion / proposal,Communication
+B1,Erklärung,die,ব্যাখ্যা / বিবরণ,explanation,Communication
+B1,Dialog,der,সংলাপ / কথোপকথন,dialogue,Communication
+B1,Ausdruck,der,অভিব্যক্তি / শব্দগুচ্ছ,expression / phrase,Communication
+B1,Verständnis,das,উপলব্ধি / বোঝাপড়া,understanding,Communication
+B1,Missverständnis,das,ভুল বোঝাবুঝি,misunderstanding,Communication
+B1,Kontakt,der,যোগাযোগ / সম্পর্ক,contact,Communication
+B1,Austausch,der,বিনিময় (মতামত/তথ্য),exchange,Communication
+A1,Land,das,দেশ,country,Society & Culture
+A1,Stadt,die,শহর,city / town,Society & Culture
+A1,Mensch,der,মানুষ,human / person,Society & Culture
+A1,Leute,die (Pl.),জনগণ / লোকজন,people,Society & Culture
+A1,Musik,die,সংগীত / গান,music,Society & Culture
+A1,Kunst,die,শিল্প / আর্ট,art,Society & Culture
+A1,Fest,das,উৎসব / পার্টি,festival / celebration,Society & Culture
+A1,Party,die,পার্টি / অনুষ্ঠান,party,Society & Culture
+A1,Kirche,die,গির্জা / চার্চ,church,Society & Culture
+A2,Kultur,die,সংস্কৃতি,culture,Society & Culture
+A2,Gesellschaft,die,সমাজ,society,Society & Culture
+A2,Museum,das,জাদুঘর,museum,Society & Culture
+A2,Theater,das,নাট্যশালা / থিয়েটার,theater,Society & Culture
+A2,Kino,das,সিনেমা হল,cinema / movie theater,Society & Culture
+A2,Ausländer,der,বিদেশী (পুরুষ),foreigner (male),Society & Culture
+A2,Ausländerin,die,বিদেশী (নারী),foreigner (female),Society & Culture
+A2,Religion,die,ধর্ম,religion,Society & Culture
+A2,Tradition,die,ঐতিহ্য / প্রথা,tradition,Society & Culture
+A2,Feiertag,der,সরকারি ছুটি / উৎসবের দিন,public holiday,Society & Culture
+A2,Gesetz,das,আইন / নিয়ম,law,Society & Culture
+B1,Bevölkerung,die,জনসংখ্যা,population,Society & Culture
+B1,Politik,die,রাজনীতি,politics,Society & Culture
+B1,Staat,der,রাষ্ট্র / রাজ্য,state / nation,Society & Culture
+B1,Bürger,der,নাগরিক (পুরুষ),citizen (male),Society & Culture
+B1,Bürgerin,die,নাগরিক (নারী),citizen (female),Society & Culture
+B1,Gemeinschaft,die,সম্প্রদায় / গুচ্ছ,community,Society & Culture
+B1,Freiheit,die,স্বাধীনতা,freedom / liberty,Society & Culture
+B1,Gleichberechtigung,die,সমঅধিকার,equal rights,Society & Culture
+B1,Integration,die,সংহতি / অন্তর্ভুক্তি,integration,Society & Culture
+B1,Geschichte,die,ইতিহাস / গল্প,history / story,Society & Culture
+B1,Veranstaltung,die,অনুষ্ঠান / ইভেন্ট,event / organization,Society & Culture
+B1,Gewohnheit,die,সামাজিক রীতিনীতি / অভ্যাস,custom / habit,Society & Culture
+A1,Tier,das,প্রাণী / পশু,animal,Animal
+A1,Hund,der,কুকুর,dog,Animal
+A1,Katze,die,বিড়াল,cat,Animal
+A1,Vogel,der,পাখি,bird,Animal
+A1,Fisch,der,মাছ,fish,Animal
+A1,Kuh,die,গরু,cow,Animal
+A1,Pferd,das,ঘোড়া,horse,Animal
+A1,Schwein,das,শুকর,pig,Animal
+A1,Schaf,das,ভেড়া,sheep,Animal
+A2,Elefant,der,হাতি,elephant,Animal
+A2,Löwe,der,সিংহ,lion,Animal
+A2,Bär,der,ভালুক,bear,Animal
+A2,Maus,die,ইঁদুর,mouse,Animal
+A2,Hase,der,খরগোশ,rabbit / hare,Animal
+A2,Enten,die (Pl.),হাঁসসমূহ,ducks,Animal
+A2,Vogel,der,পাখি,bird,Animal
+A2,Insekt,das,পোকা / পতঙ্গ,insect,Animal
+A2,Fliege,die,মাছি,fly,Animal
+A2,Mücke,die,মশা,mosquito,Animal
+B1,Haustier,das,পোষা প্রাণী,pet,Animal
+B1,Wildtier,das,বন্যপ্রাণী,wild animal,Animal
+B1,Schlange,die,সাপ,snake,Animal
+B1,Spinne,die,মাকড়সা,spider,Animal
+B1,Biene,die,মৌমাছি,bee,Animal
+B1,Frosch,der,ব্যাঙ,frog,Animal
+B1,Wolf,der,নেকড়ে,wolf,Animal
+B1,Affe,der,বানর,monkey,Animal
+B1,Vogelgrippe,die,বার্ড ফ্লু,bird flu,Animal
+B1,Tierschutz,der,প্রাণী সুরক্ষা,animal protection,Animal
+A1,Pass,der,পাসপোর্ট,passport,Government & Paperwork
+A1,Ausweis,der,পরিচয়পত্র / আইডি,ID card,Government & Paperwork
+A1,Name,der,নাম,name,Government & Paperwork
+A1,Formular,das,ফরম / আবেদনপত্র,form / application,Government & Paperwork
+A1,Adresse,die,ঠিকানা,address,Government & Paperwork
+A1,Unterschrift,die,স্বাক্ষর / সই,signature,Government & Paperwork
+A1,Papier,das,কাগজ,paper,Government & Paperwork
+A2,Amt,das,সরকারি অফিস / দপ্তর,government office,Government & Paperwork
+A2,Behörde,die,কর্তৃপক্ষ / সরকারি সংস্থা,authority / public office,Government & Paperwork
+A2,Anmeldung,die,নিবন্ধন / রেজিস্ট্রেসন,registration,Government & Paperwork
+A2,Abmeldung,die,নিবন্ধন বাতিল / বাসা বদলের তথ্য,deregistration,Government & Paperwork
+A2,Visa,das / Visum,ভিসা,visa,Government & Paperwork
+A2,Dokument,das,দলিল / নথিপত্র,document,Government & Paperwork
+A2,Steuer,die,ট্যাক্স / কর,tax,Government & Paperwork
+A2,Gesetz,das,আইন,law,Government & Paperwork
+A2,Gebühr,die,ফি / সরকারি চার্জ,fee,Government & Paperwork
+A2,Nummer,die,নম্বর / সিরিয়াল নম্বর,number,Government & Paperwork
+B1,Aufenthaltsgenehmigung,die,বসবাসের অনুমতি / রেসিডেন্স পারমিট,residence permit,Government & Paperwork
+B1,Bürgeramt,das,নাগরিক সেবা অফিস,public service office,Government & Paperwork
+B1,Ausländerbehörde,die,ইমিগ্রেশন অফিস / পররাষ্ট্র দপ্তর,immigration office,Government & Paperwork
+B1,Antrag,der,আনুষ্ঠানিক আবেদন,formal application,Government & Paperwork
+B1,Bescheinigung,die,প্রত্যয়নপত্র / সার্টিফিকেট,certificate / attestation,Government & Paperwork
+B1,Bestätigung,die,নিশ্চিতকরণ / কনফার্মেশন,confirmation,Government & Paperwork
+B1,Genehmigung,die,অনুমতি / পারমিশন,approval / permit,Government & Paperwork
+B1,Vertrag,der,চুক্তিপত্র,contract,Government & Paperwork
+B1,Vollmacht,die,পাওয়ার অফ অ্যাটর্নি / মুক্তারনামা,power of attorney,Government & Paperwork
+B1,Vorschrift,die,নিয়মাবলী / প্রবিধান,regulation / rule,Government & Paperwork
+B1,Frist,die,আবেদনের শেষ সময় / ডেডলাইন,deadline,Government & Paperwork
+B1,Stempel,der,সিল / স্ট্যাম্প,stamp / seal,Government & Paperwork
+B1,Beglaubigung,die,সত্যায়ন / নোটারি,notarization / attestation,Government & Paperwork
