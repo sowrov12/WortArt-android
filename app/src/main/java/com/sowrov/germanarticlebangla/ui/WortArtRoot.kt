@@ -76,7 +76,7 @@ private fun RootContent(vm: AppViewModel, dark: Boolean) {
     }
 
     BackHandler(enabled = vm.showAdmin || vm.tab != Tab.Practice) {
-        if (vm.showAdmin) vm.closeAdmin() else vm.setTab(Tab.Practice)
+        if (vm.showAdmin) vm.closeAdmin() else vm.selectTab(Tab.Practice)
     }
 
     Box(
@@ -150,7 +150,7 @@ private fun BottomBar(vm: AppViewModel) {
         for (item in items) {
             NavigationBarItem(
                 selected = vm.tab == item.tab,
-                onClick = { vm.setTab(item.tab) },
+                onClick = { vm.selectTab(item.tab) },
                 icon = { Icon(item.icon, contentDescription = item.label) },
                 label = { Text(item.label) },
                 colors = NavigationBarItemDefaults.colors(
