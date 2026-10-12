@@ -108,7 +108,7 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
 
     // ----- navigation -----------------------------------------------------------------------
 
-    fun setTab(value: Tab) {
+    fun selectTab(value: Tab) {
         tab = value
     }
 
