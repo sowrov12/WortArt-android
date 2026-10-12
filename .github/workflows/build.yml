@@ -27,7 +27,19 @@ jobs:
           gradle-version: "8.9"
 
       - name: Build release APK
-        run: gradle assembleRelease --stacktrace --no-daemon
+        run: |
+          set -o pipefail
+          gradle assembleRelease --no-daemon 2>&1 | tee build.log
+
+      - name: Show errors in summary
+        if: failure()
+        run: |
+          {
+            echo "## Build errors"
+            echo '```'
+            grep -E "^e: |What went wrong|Execution failed|error:|Could not resolve|not found" -A3 build.log | head -80
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
