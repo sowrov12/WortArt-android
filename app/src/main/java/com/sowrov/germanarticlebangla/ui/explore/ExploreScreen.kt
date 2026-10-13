@@ -64,6 +64,7 @@ import com.sowrov.germanarticlebangla.data.RULE_GROUPS
 import com.sowrov.germanarticlebangla.data.Rule
 import com.sowrov.germanarticlebangla.data.RuleGroup
 import com.sowrov.germanarticlebangla.data.Word
+import com.sowrov.germanarticlebangla.data.categoryImageBackupUrl
 import com.sowrov.germanarticlebangla.data.categoryImageUrl
 import com.sowrov.germanarticlebangla.ui.AppIcons
 import com.sowrov.germanarticlebangla.ui.AppViewModel
@@ -365,6 +366,7 @@ private fun CategoryCard(
         var hasImage by remember(category.id) { mutableStateOf(false) }
         RemoteImage(
             url = categoryImageUrl(category, true),
+            backupUrl = categoryImageBackupUrl(category, true),
             modifier = Modifier.matchParentSize(),
             contentScale = ContentScale.Crop,
             onSuccess = { hasImage = true },
@@ -385,6 +387,7 @@ private fun CategoryCard(
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                 RemoteImage(
                     url = categoryImageUrl(category, false),
+                    backupUrl = categoryImageBackupUrl(category, false),
                     modifier = Modifier.size(40.dp).clip(CircleShape),
                     fallback = { IconTile(AppIcons.forCategory(category.id), c.primary, size = 40, round = true) },
                 )
