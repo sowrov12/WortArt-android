@@ -95,12 +95,18 @@ fun StatsScreen(vm: AppViewModel) {
             )
         }
 
-        StatRow(AppIcons.Layers, "Cards played", stats.cardsPlayed.toString())
-        StatRow(AppIcons.Target, "Success rate", "$rate%")
-        StatRow(AppIcons.Flame, "Current run", stats.currentRun.toString())
-        StatRow(AppIcons.Trophy, "Best run", stats.bestRun.toString())
-        StatRow(AppIcons.Clock, "Time practiced", formatTime(stats.timeSpentMs))
-        StatRow(AppIcons.Favorite, "Favorites", progress.favorites.size.toString())
+        Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            StatTile(AppIcons.Layers, "Cards played", stats.cardsPlayed.toString(), Modifier.weight(1f))
+            StatTile(AppIcons.Target, "Success rate", "$rate%", Modifier.weight(1f))
+        }
+        Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            StatTile(AppIcons.Flame, "Current run", stats.currentRun.toString(), Modifier.weight(1f))
+            StatTile(AppIcons.Trophy, "Best run", stats.bestRun.toString(), Modifier.weight(1f))
+        }
+        Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            StatTile(AppIcons.Clock, "Time practiced", formatTime(stats.timeSpentMs), Modifier.weight(1f))
+            StatTile(AppIcons.Favorite, "Favorites", progress.favorites.size.toString(), Modifier.weight(1f))
+        }
 
         OutlinedButton(
             onClick = { confirmReset = true },
@@ -127,15 +133,20 @@ fun StatsScreen(vm: AppViewModel) {
 }
 
 @Composable
-private fun StatRow(icon: ImageVector, label: String, value: String) {
+private fun StatTile(icon: ImageVector, label: String, value: String, modifier: Modifier = Modifier) {
     val c = WortTheme.colors
     Row(
-        modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(20.dp)).background(c.card).padding(14.dp),
-        verticalAlignment = Alignment.CenterVertically,
+        modifier = modifier.clip(RoundedCornerShape(24.dp)).background(c.card).padding(14.dp),
+        verticalAlignment = Alignment.Top,
         horizontalArrangement = Arrangement.spacedBy(12.dp),
     ) {
-        IconTile(icon, c.primary, size = 40)
-        Text(label, color = c.mutedForeground, fontSize = 14.sp, modifier = Modifier.weight(1f))
-        Text(value, color = c.foreground, fontFamily = SerifFont, fontSize = 20.sp, fontWeight = FontWeight.SemiBold)
+        IconTile(icon, c.primary, size = 44)
+        Column {
+            Text(label, color = c.mutedForeground, fontSize = 13.sp, maxLines = 1)
+            Text(
+                value, color = c.foreground, fontWeight = FontWeight.Bold, maxLines = 1, softWrap = false,
+                fontSize = if (value.length > 5) 20.sp else 28.sp,
+            )
+        }
     }
 }
