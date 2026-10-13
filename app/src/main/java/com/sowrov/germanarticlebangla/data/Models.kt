@@ -324,18 +324,39 @@ private val DRIVE_PATTERNS = listOf(
     Regex("""lh3\.googleusercontent\.com/d/([\w-]+)"""),
 )
 
-/** Turns a Google Drive share link into a direct image URL (the file must be shared "Anyone with the link"). */
-fun toDirectImageUrl(url: String?): String? {
+private fun driveFileId(url: String?): String? {
     val trimmed = url?.trim()
     if (trimmed.isNullOrEmpty()) return null
     for (pattern in DRIVE_PATTERNS) {
         val id = pattern.find(trimmed)?.groupValues?.getOrNull(1)
-        if (!id.isNullOrEmpty()) return "https://lh3.googleusercontent.com/d/$id"
+        if (!id.isNullOrEmpty()) return id
     }
-    return trimmed
+    return null
 }
 
-fun categoryImageUrl(category: Category, background: Boolean): String? {
-    if (!category.isTopic) return null
-    return toDirectImageUrl(if (background) category.bgImage else category.iconImage)
+/** Turns a Google Drive share link into a direct image URL (the file must be shared "Anyone with the link"). */
+fun toDirectImageUrl(url: String?): String? {
+    val trimmed = url?.trim()
+    if (trimmed.isNullOrEmpty()) return null
+    val id = driveFileId(trimmed)
+    return if (id != null) "https://lh3.googleusercontent.com/d/$id" else trimmed
 }
+
+/** Small resized version of a Drive image: loads much faster than the full-size file. */
+fun toThumbnailUrl(url: String?, width: Int): String? {
+    val id = driveFileId(url) ?: return null
+    return "https://drive.google.com/thumbnail?id=$id&sz=w$width"
+}
+
+private fun rawCategoryImage(category: Category, background: Boolean): String? =
+    if (!category.isTopic) null else if (background) category.bgImage else category.iconImage
+
+/** Fast, resized image first (backgrounds 800px, icons 256px). */
+fun categoryImageUrl(category: Category, background: Boolean): String? {
+    val raw = rawCategoryImage(category, background)
+    return toThumbnailUrl(raw, if (background) 800 else 256) ?: toDirectImageUrl(raw)
+}
+
+/** Full-size link, tried only if the resized one fails. */
+fun categoryImageBackupUrl(category: Category, background: Boolean): String? =
+    toDirectImageUrl(rawCategoryImage(category, background))
