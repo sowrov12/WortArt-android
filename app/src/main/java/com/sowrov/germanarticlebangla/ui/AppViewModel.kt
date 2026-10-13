@@ -235,6 +235,10 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
 
     fun signIn(activity: Activity) {
         if (signInPending) return
+        if (!auth.state.value.configured) {
+            signInError = "Sign-in is not available right now. Please try again later."
+            return
+        }
         signInError = null
         signInPending = true
         viewModelScope.launch {
