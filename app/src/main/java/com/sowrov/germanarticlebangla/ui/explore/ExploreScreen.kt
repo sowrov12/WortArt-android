@@ -253,7 +253,7 @@ private fun LazyListScope.categoriesSection(
 
     item(key = "quick") {
         Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            QuickCard("All words", "${words.size} words", AppIcons.Layers, selectedDeck == "all", Modifier.weight(1f)) { onSelect("all") }
+            QuickCard("All words", "Every category", AppIcons.Layers, selectedDeck == "all", Modifier.weight(1f)) { onSelect("all") }
             QuickCard("Favorites", "$favoritesCount saved", AppIcons.Favorite, selectedDeck == "favorites", Modifier.weight(1f)) { onSelect("favorites") }
         }
     }
@@ -398,7 +398,6 @@ private fun CategoryCard(
                 Text(category.label, color = textColor, fontSize = 14.sp, fontWeight = FontWeight.SemiBold, maxLines = 2, overflow = TextOverflow.Ellipsis)
                 val bn = category.bn
                 if (bn != null) Text(bn, color = subColor, fontSize = 12.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                Text("$count words", color = subColor, fontSize = 11.sp)
             }
         }
     }
@@ -720,7 +719,7 @@ private fun LazyListScope.searchSection(
     }
     if (matches.size > MAX_RESULTS) {
         item(key = "search-more") {
-            Text("Showing the first $MAX_RESULTS of ${matches.size} results — refine your search.", color = c.mutedForeground, fontSize = 12.sp)
+            Text("Showing the first $MAX_RESULTS results — refine your search.", color = c.mutedForeground, fontSize = 12.sp)
         }
     }
 }
