@@ -22,6 +22,10 @@ android {
 
         val adminEmail = (project.findProperty("ADMIN_EMAIL") as String? ?: "").trim().lowercase()
         buildConfigField("String", "ADMIN_EMAIL", "\"$adminEmail\"")
+
+        // true = Google Play version: no prices, no buy buttons, no links to purchase pages.
+        val playBuild = ((project.findProperty("PLAY_BUILD") as String?) ?: "false").trim().lowercase() == "true"
+        buildConfigField("boolean", "PLAY_BUILD", playBuild.toString())
     }
 
     signingConfigs {
