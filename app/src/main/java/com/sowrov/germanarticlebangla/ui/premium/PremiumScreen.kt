@@ -94,22 +94,15 @@ fun PremiumScreen(vm: AppViewModel) {
                 IconTile(AppIcons.Crown, c.primary, size = 48, round = true)
                 Text("What you get", color = c.foreground, fontFamily = SerifFont, fontSize = 20.sp, fontWeight = FontWeight.SemiBold)
             }
-            Benefit("Unlimited practice (free: ${freeLimit(DailyCounter.CARDS_PRACTICED)} cards a day)")
-            Benefit("Unlimited favorites (free: ${freeLimit(DailyCounter.FAVORITES_ADDED)} a day)")
-            Benefit("Unlimited grammar rule look-ups (free: ${freeLimit(DailyCounter.RULES_OPENED)} a day)")
+            Benefit("Unlimited daily practice")
+            Benefit("Unlimited favorites")
+            Benefit("Unlimited grammar rule look-ups")
             Benefit("All Premium categories")
-            Benefit("Unlimited multi-category decks (free: $FREE_CUSTOM_DECKS deck, $FREE_CATEGORIES_PER_DECK categories)")
+            Benefit("Unlimited multi-category decks")
         }
 
         when {
-            !auth.configured -> {
-                Text(
-                    "Login is not set up in this build yet. Add google-services.json to the app folder (see README) to enable Google sign-in and Premium.",
-                    color = c.mutedForeground, fontSize = 13.sp,
-                    modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(20.dp)).background(c.card).padding(16.dp),
-                )
-            }
-            auth.loading -> {
+            auth.configured && auth.loading -> {
                 Row(Modifier.fillMaxWidth().padding(24.dp), horizontalArrangement = Arrangement.Center) {
                     CircularProgressIndicator(color = c.primary)
                 }
