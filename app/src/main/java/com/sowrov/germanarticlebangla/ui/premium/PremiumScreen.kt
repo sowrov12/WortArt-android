@@ -42,6 +42,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.sowrov.germanarticlebangla.BuildConfig
 import com.sowrov.germanarticlebangla.data.PLANS
 import com.sowrov.germanarticlebangla.data.SUPPORT_EMAIL
+import com.sowrov.germanarticlebangla.data.activationWhatsappLink
 import com.sowrov.germanarticlebangla.data.supportWhatsappLink
 import com.sowrov.germanarticlebangla.data.whatsappLink
 import com.sowrov.germanarticlebangla.ui.AppIcons
@@ -91,11 +92,11 @@ fun PremiumScreen(vm: AppViewModel) {
     ) {
         Column {
             Text(
-                if (play) "Account" else "Premium",
+                if (play) "Member Access" else "Premium",
                 color = c.foreground, fontFamily = SerifFont, fontSize = 28.sp, fontWeight = FontWeight.SemiBold,
             )
             Text(
-                if (play) "Your plan and support." else "Unlimited learning, every category.",
+                if (play) "Your membership and support." else "Unlimited learning, every category.",
                 color = c.mutedForeground, fontSize = 14.sp,
             )
         }
@@ -106,16 +107,16 @@ fun PremiumScreen(vm: AppViewModel) {
             verticalArrangement = Arrangement.spacedBy(10.dp),
         ) {
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                IconTile(AppIcons.Crown, c.primary, size = 48, round = true)
+                IconTile(if (play) AppIcons.Person else AppIcons.Crown, c.primary, size = 48, round = true)
                 Text(
-                    if (play) "Premium members get" else "What you get",
+                    if (play) "Member benefits" else "What you get",
                     color = c.foreground, fontFamily = SerifFont, fontSize = 20.sp, fontWeight = FontWeight.SemiBold,
                 )
             }
             Benefit("Unlimited daily practice")
             Benefit("Unlimited favorites")
             Benefit("Unlimited grammar rule look-ups")
-            Benefit("All Premium categories")
+            Benefit(if (play) "All member categories" else "All Premium categories")
             Benefit("Unlimited multi-category decks")
         }
 
@@ -136,7 +137,7 @@ fun PremiumScreen(vm: AppViewModel) {
                 val error = vm.signInError
                 if (error != null) Text(error, color = c.destructive, fontSize = 13.sp)
                 Text(
-                    if (play) "Sign in to see your plan on this device." else "Sign in to buy Premium and keep it on your account.",
+                    if (play) "Sign in with your member account." else "Sign in to buy Premium and keep it on your account.",
                     color = c.mutedForeground, fontSize = 12.sp,
                 )
             }
@@ -150,11 +151,11 @@ fun PremiumScreen(vm: AppViewModel) {
                     Text(user.email, color = c.mutedForeground, fontSize = 13.sp)
                     val until = auth.premiumUntilMs
                     if (auth.isPremium && until != null) {
-                        Text("Premium until ${formatDate(until)}", color = c.success, fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
+                        Text((if (play) "Member until " else "Premium until ") + formatDate(until), color = c.success, fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
                     } else if (until != null) {
-                        Text("Premium expired on ${formatDate(until)}", color = c.destructive, fontSize = 14.sp)
+                        Text((if (play) "Membership expired on " else "Premium expired on ") + formatDate(until), color = c.destructive, fontSize = 14.sp)
                     } else {
-                        Text("Free plan", color = c.mutedForeground, fontSize = 14.sp)
+                        Text(if (play) "No active membership" else "Free plan", color = c.mutedForeground, fontSize = 14.sp)
                     }
                     if (!play) {
                         Row(
@@ -237,6 +238,22 @@ fun PremiumScreen(vm: AppViewModel) {
                     Icon(AppIcons.Logout, null, tint = c.mutedForeground, modifier = Modifier.size(18.dp))
                     Text("Sign out", color = c.foreground, modifier = Modifier.padding(start = 8.dp))
                 }
+            }
+        }
+
+        if (play) {
+            Column(
+                modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(24.dp)).background(c.card).padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(10.dp),
+            ) {
+                Text("Member activation", color = c.foreground, fontFamily = SerifFont, fontSize = 20.sp, fontWeight = FontWeight.SemiBold)
+                Text("Student or member? Ask your teacher to activate your account.", color = c.mutedForeground, fontSize = 13.sp)
+                Button(
+                    onClick = { open(activationWhatsappLink(user?.email)) },
+                    modifier = Modifier.fillMaxWidth().height(48.dp),
+                    shape = RoundedCornerShape(14.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = c.primary, contentColor = c.primaryForeground),
+                ) { Text("Contact for activation") }
             }
         }
 
