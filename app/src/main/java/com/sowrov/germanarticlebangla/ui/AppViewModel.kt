@@ -12,6 +12,7 @@ import coil.request.ImageRequest
 import com.sowrov.germanarticlebangla.data.categoryImageUrl
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.sowrov.germanarticlebangla.BuildConfig
 import com.sowrov.germanarticlebangla.auth.AuthManager
 import com.sowrov.germanarticlebangla.auth.AuthState
 import com.sowrov.germanarticlebangla.data.Catalog
@@ -30,6 +31,8 @@ import com.sowrov.germanarticlebangla.data.freeLimit
 import com.sowrov.germanarticlebangla.data.getTodayUsage
 import com.sowrov.germanarticlebangla.data.isCustomDeckId
 import com.sowrov.germanarticlebangla.data.limitCopy
+import com.sowrov.germanarticlebangla.ui.practice.PracticeSession
+import com.sowrov.germanarticlebangla.data.Word
 import com.sowrov.germanarticlebangla.util.Reminders
 import com.sowrov.germanarticlebangla.util.Speaker
 import kotlinx.coroutines.Dispatchers
@@ -124,6 +127,15 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    private var session: PracticeSession? = null
+
+    /** Same key = same session (same card after switching tabs); new key = fresh shuffled deck. */
+    fun practiceSession(key: List<Any>, build: () -> List<Word>): PracticeSession {
+        val existing = session
+        if (existing != null && existing.key == key) return existing
+        return PracticeSession(key, build()).also { session = it }
+    }
+
     // ----- navigation -----------------------------------------------------------------------
 
     fun selectTab(value: Tab) {
@@ -197,7 +209,10 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
 
     /** Premium dialog with custom copy (for Premium-only features that are not daily limits). */
     fun askPremium(title: String, body: String) {
-        limitNotice = LimitNotice(title, body, resets = false)
+        // The Google Play version never says "Premium".
+        val t = if (BuildConfig.PLAY_BUILD) title.replace("Premium", "membership") else title
+        val b = if (BuildConfig.PLAY_BUILD) body.replace("Premium", "membership") else body
+        limitNotice = LimitNotice(t, b, resets = false)
     }
 
     fun dismissNotice() {
