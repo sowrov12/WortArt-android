@@ -23,7 +23,7 @@ import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -47,24 +47,27 @@ fun RemoteImage(
     modifier: Modifier = Modifier,
     contentScale: ContentScale = ContentScale.Crop,
     onSuccess: (() -> Unit)? = null,
+    backupUrl: String? = null,
     fallback: @Composable () -> Unit = {},
 ) {
-    if (url.isNullOrEmpty()) {
-        fallback()
-        return
+    // stage 0 = main url, 1 = backup url, 2 = give up and show the fallback
+    var stage by remember(url, backupUrl) { mutableIntStateOf(0) }
+    val target: String? = when (stage) {
+        0 -> if (url.isNullOrEmpty()) backupUrl else url
+        1 -> backupUrl
+        else -> null
     }
-    var failed by remember(url) { mutableStateOf(false) }
-    if (failed) {
+    if (target.isNullOrEmpty()) {
         fallback()
         return
     }
     AsyncImage(
-        model = url,
+        model = target,
         contentDescription = null,
         modifier = modifier,
         contentScale = contentScale,
         onSuccess = { onSuccess?.invoke() },
-        onError = { failed = true },
+        onError = { stage = if (stage == 0 && !backupUrl.isNullOrEmpty() && target != backupUrl) 1 else 2 },
     )
 }
 
