@@ -98,6 +98,13 @@ import kotlinx.coroutines.delay
 
 data class AnswerState(val picked: Article, val isCorrect: Boolean)
 
+/** Practice progress kept in the ViewModel, so leaving the Practice tab and coming back keeps the same card. */
+class PracticeSession(val key: List<Any>, initial: List<Word>) {
+    var cards by mutableStateOf(initial)
+    var index by mutableIntStateOf(0)
+    var answer by mutableStateOf<AnswerState?>(null)
+}
+
 private const val CORRECT_DELAY_MS = 450L
 
 @Composable
@@ -112,15 +119,16 @@ fun PracticeScreen(vm: AppViewModel, onToggleReminders: (Boolean) -> Unit) {
     val deckLocked = access.lockedIds.contains(deck)
 
     val resetKey = listOf<Any>(deck, settings.level, access.isPremium, catalog.version)
-    var cards by remember(resetKey) {
-        mutableStateOf(
+    val session = remember(resetKey) {
+        vm.practiceSession(resetKey) {
             wordsForDeck(
                 catalog.words, deck, progress.favorites, settings.level, access.lockedIds, customDecks,
             ).shuffled()
-        )
+        }
     }
-    var index by remember(resetKey) { mutableIntStateOf(0) }
-    var answer by remember(resetKey) { mutableStateOf<AnswerState?>(null) }
+    var cards by session::cards
+    var index by session::index
+    var answer by session::answer
     var shownAt by remember(resetKey) { mutableLongStateOf(System.currentTimeMillis()) }
 
     val current: Word? = cards.getOrNull(index)
@@ -218,13 +226,13 @@ fun PracticeScreen(vm: AppViewModel, onToggleReminders: (Boolean) -> Unit) {
         if (deckLocked) {
             InfoPane(
                 icon = AppIcons.Crown,
-                title = "${catalog.getCategory(deck).label} is Premium",
+                title = if (BuildConfig.PLAY_BUILD) "${catalog.getCategory(deck).label} is for members" else "${catalog.getCategory(deck).label} is Premium",
                 body = if (BuildConfig.PLAY_BUILD) {
-                    "This category is for Premium members."
+                    "This category is for members."
                 } else {
                     "Unlock every category, unlimited practice and favorites with Premium."
                 },
-                button = if (BuildConfig.PLAY_BUILD) "Open account" else "Get Premium",
+                button = if (BuildConfig.PLAY_BUILD) "Member access" else "Get Premium",
                 onClick = { vm.openPremiumTab() },
                 modifier = Modifier.weight(1f),
             )
