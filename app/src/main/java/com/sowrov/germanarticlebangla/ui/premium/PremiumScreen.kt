@@ -247,7 +247,7 @@ fun PremiumScreen(vm: AppViewModel) {
                 verticalArrangement = Arrangement.spacedBy(10.dp),
             ) {
                 Text("Member activation", color = c.foreground, fontFamily = SerifFont, fontSize = 20.sp, fontWeight = FontWeight.SemiBold)
-                Text("Student or member? Ask your teacher to activate your account.", color = c.mutedForeground, fontSize = 13.sp)
+                Text("Enrolled in our course or community? Contact support to activate your access.", color = c.mutedForeground, fontSize = 13.sp)
                 Button(
                     onClick = { open(activationWhatsappLink(user?.email)) },
                     modifier = Modifier.fillMaxWidth().height(48.dp),
