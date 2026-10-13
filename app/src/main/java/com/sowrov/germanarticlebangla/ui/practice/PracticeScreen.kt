@@ -61,6 +61,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.imageLoader
 import coil.request.ImageRequest
+import com.sowrov.germanarticlebangla.BuildConfig
 import com.sowrov.germanarticlebangla.data.ARTICLES
 import com.sowrov.germanarticlebangla.data.Article
 import com.sowrov.germanarticlebangla.data.Category
@@ -69,6 +70,7 @@ import com.sowrov.germanarticlebangla.data.DailyCounter
 import com.sowrov.germanarticlebangla.data.LevelFilter
 import com.sowrov.germanarticlebangla.data.ThemePref
 import com.sowrov.germanarticlebangla.data.Word
+import com.sowrov.germanarticlebangla.data.categoryImageBackupUrl
 import com.sowrov.germanarticlebangla.data.categoryImageUrl
 import com.sowrov.germanarticlebangla.data.describeMatch
 import com.sowrov.germanarticlebangla.data.getActiveStreak
@@ -217,8 +219,12 @@ fun PracticeScreen(vm: AppViewModel, onToggleReminders: (Boolean) -> Unit) {
             InfoPane(
                 icon = AppIcons.Crown,
                 title = "${catalog.getCategory(deck).label} is Premium",
-                body = "Unlock every category, unlimited practice and favorites with Premium.",
-                button = "Get Premium",
+                body = if (BuildConfig.PLAY_BUILD) {
+                    "This category is for Premium members."
+                } else {
+                    "Unlock every category, unlimited practice and favorites with Premium."
+                },
+                button = if (BuildConfig.PLAY_BUILD) "Open account" else "Get Premium",
                 onClick = { vm.openPremiumTab() },
                 modifier = Modifier.weight(1f),
             )
@@ -456,6 +462,7 @@ fun WordCard(
             // Column H: full-card cover image with a dark gradient so text stays readable.
             RemoteImage(
                 url = categoryImageUrl(category, true),
+                backupUrl = categoryImageBackupUrl(category, true),
                 modifier = Modifier.matchParentSize(),
                 contentScale = ContentScale.Crop,
                 onSuccess = { bgLoaded = true },
@@ -479,6 +486,7 @@ fun WordCard(
                 Box {
                     RemoteImage(
                         url = categoryImageUrl(category, false),
+                        backupUrl = categoryImageBackupUrl(category, false),
                         modifier = Modifier
                             .size(112.dp)
                             .clip(CircleShape)
