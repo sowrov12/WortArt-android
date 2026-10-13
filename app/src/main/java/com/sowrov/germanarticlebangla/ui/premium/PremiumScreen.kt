@@ -3,6 +3,8 @@ package com.sowrov.germanarticlebangla.ui.premium
 import android.app.Activity
 import android.content.Context
 import android.content.ContextWrapper
+import android.net.Uri
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -36,13 +38,11 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.foundation.BorderStroke
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.sowrov.germanarticlebangla.data.FREE_CATEGORIES_PER_DECK
-import com.sowrov.germanarticlebangla.data.FREE_CUSTOM_DECKS
-import com.sowrov.germanarticlebangla.data.DailyCounter
+import com.sowrov.germanarticlebangla.BuildConfig
 import com.sowrov.germanarticlebangla.data.PLANS
-import com.sowrov.germanarticlebangla.data.freeLimit
+import com.sowrov.germanarticlebangla.data.SUPPORT_EMAIL
+import com.sowrov.germanarticlebangla.data.supportWhatsappLink
 import com.sowrov.germanarticlebangla.data.whatsappLink
 import com.sowrov.germanarticlebangla.ui.AppIcons
 import com.sowrov.germanarticlebangla.ui.AppViewModel
@@ -67,11 +67,20 @@ fun formatDate(ms: Long): String = SimpleDateFormat("d MMM yyyy", Locale.getDefa
 @Composable
 fun PremiumScreen(vm: AppViewModel) {
     val c = WortTheme.colors
+    val play = BuildConfig.PLAY_BUILD
     val auth by vm.authState.collectAsStateWithLifecycle()
     val context = LocalContext.current
     val uriHandler = LocalUriHandler.current
     val clipboard = LocalClipboardManager.current
     val user = auth.user
+
+    fun open(uri: String) {
+        try {
+            uriHandler.openUri(uri)
+        } catch (e: Exception) {
+            // no app can open it
+        }
+    }
 
     Column(
         modifier = Modifier
@@ -81,8 +90,14 @@ fun PremiumScreen(vm: AppViewModel) {
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
         Column {
-            Text("Premium", color = c.foreground, fontFamily = SerifFont, fontSize = 28.sp, fontWeight = FontWeight.SemiBold)
-            Text("Unlimited learning, every category.", color = c.mutedForeground, fontSize = 14.sp)
+            Text(
+                if (play) "Account" else "Premium",
+                color = c.foreground, fontFamily = SerifFont, fontSize = 28.sp, fontWeight = FontWeight.SemiBold,
+            )
+            Text(
+                if (play) "Your plan and support." else "Unlimited learning, every category.",
+                color = c.mutedForeground, fontSize = 14.sp,
+            )
         }
 
         // Benefits
@@ -92,7 +107,10 @@ fun PremiumScreen(vm: AppViewModel) {
         ) {
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 IconTile(AppIcons.Crown, c.primary, size = 48, round = true)
-                Text("What you get", color = c.foreground, fontFamily = SerifFont, fontSize = 20.sp, fontWeight = FontWeight.SemiBold)
+                Text(
+                    if (play) "Premium members get" else "What you get",
+                    color = c.foreground, fontFamily = SerifFont, fontSize = 20.sp, fontWeight = FontWeight.SemiBold,
+                )
             }
             Benefit("Unlimited daily practice")
             Benefit("Unlimited favorites")
@@ -117,7 +135,10 @@ fun PremiumScreen(vm: AppViewModel) {
                 ) { Text(if (vm.signInPending) "Signing in…" else "Continue with Google", fontSize = 16.sp, fontWeight = FontWeight.SemiBold) }
                 val error = vm.signInError
                 if (error != null) Text(error, color = c.destructive, fontSize = 13.sp)
-                Text("Sign in to buy Premium and keep it on your account.", color = c.mutedForeground, fontSize = 12.sp)
+                Text(
+                    if (play) "Sign in to see your plan on this device." else "Sign in to buy Premium and keep it on your account.",
+                    color = c.mutedForeground, fontSize = 12.sp,
+                )
             }
             else -> {
                 // Account
@@ -135,61 +156,66 @@ fun PremiumScreen(vm: AppViewModel) {
                     } else {
                         Text("Free plan", color = c.mutedForeground, fontSize = 14.sp)
                     }
-                    Row(
-                        modifier = Modifier
-                            .padding(top = 6.dp)
-                            .clip(RoundedCornerShape(12.dp))
-                            .background(c.secondary)
-                            .padding(horizontal = 12.dp, vertical = 8.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    ) {
-                        Text("ID: ${user.uid}", color = c.mutedForeground, fontSize = 11.sp, modifier = Modifier.weight(1f))
-                        Icon(
-                            AppIcons.Copy, "Copy user ID", tint = c.foreground,
+                    if (!play) {
+                        Row(
                             modifier = Modifier
-                                .size(18.dp)
-                                .clip(CircleShape)
-                                .clickable { clipboard.setText(AnnotatedString(user.uid)) },
-                        )
+                                .padding(top = 6.dp)
+                                .clip(RoundedCornerShape(12.dp))
+                                .background(c.secondary)
+                                .padding(horizontal = 12.dp, vertical = 8.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        ) {
+                            Text("ID: ${user.uid}", color = c.mutedForeground, fontSize = 11.sp, modifier = Modifier.weight(1f))
+                            Icon(
+                                AppIcons.Copy, "Copy user ID", tint = c.foreground,
+                                modifier = Modifier
+                                    .size(18.dp)
+                                    .clip(CircleShape)
+                                    .clickable { clipboard.setText(AnnotatedString(user.uid)) },
+                            )
+                        }
                     }
                 }
 
-                Text("Choose a plan", color = c.foreground, fontFamily = SerifFont, fontSize = 20.sp, fontWeight = FontWeight.SemiBold)
-                for (plan in PLANS) {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clip(RoundedCornerShape(20.dp))
-                            .background(c.card)
-                            .border(1.dp, if (plan.badge != null) c.primary.copy(alpha = 0.5f) else c.border, RoundedCornerShape(20.dp))
-                            .padding(14.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(12.dp),
-                    ) {
-                        Column(Modifier.weight(1f)) {
-                            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                                Text(plan.label, color = c.foreground, fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
-                                if (plan.badge != null) {
-                                    Text(
-                                        plan.badge, color = c.primaryForeground, fontSize = 10.sp, fontWeight = FontWeight.Bold,
-                                        modifier = Modifier.clip(CircleShape).background(c.primary).padding(horizontal = 8.dp, vertical = 3.dp),
-                                    )
+                // Prices and buy buttons exist only in the direct APK, never in the Google Play version.
+                if (!play) {
+                    Text("Choose a plan", color = c.foreground, fontFamily = SerifFont, fontSize = 20.sp, fontWeight = FontWeight.SemiBold)
+                    for (plan in PLANS) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clip(RoundedCornerShape(20.dp))
+                                .background(c.card)
+                                .border(1.dp, if (plan.badge != null) c.primary.copy(alpha = 0.5f) else c.border, RoundedCornerShape(20.dp))
+                                .padding(14.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(12.dp),
+                        ) {
+                            Column(Modifier.weight(1f)) {
+                                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                    Text(plan.label, color = c.foreground, fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
+                                    if (plan.badge != null) {
+                                        Text(
+                                            plan.badge, color = c.primaryForeground, fontSize = 10.sp, fontWeight = FontWeight.Bold,
+                                            modifier = Modifier.clip(CircleShape).background(c.primary).padding(horizontal = 8.dp, vertical = 3.dp),
+                                        )
+                                    }
                                 }
+                                Text("${plan.price}৳", color = c.primary, fontFamily = SerifFont, fontSize = 22.sp, fontWeight = FontWeight.SemiBold)
                             }
-                            Text("${plan.price}৳", color = c.primary, fontFamily = SerifFont, fontSize = 22.sp, fontWeight = FontWeight.SemiBold)
+                            Button(
+                                onClick = { open(whatsappLink(plan, user.uid, user.email)) },
+                                shape = RoundedCornerShape(14.dp),
+                                colors = ButtonDefaults.buttonColors(containerColor = c.primary, contentColor = c.primaryForeground),
+                            ) { Text("Buy on WhatsApp") }
                         }
-                        Button(
-                            onClick = { uriHandler.openUri(whatsappLink(plan, user.uid, user.email)) },
-                            shape = RoundedCornerShape(14.dp),
-                            colors = ButtonDefaults.buttonColors(containerColor = c.primary, contentColor = c.primaryForeground),
-                        ) { Text("Buy on WhatsApp") }
                     }
+                    Text(
+                        "After you pay, send your User ID on WhatsApp. Premium is switched on for your account within a short time.",
+                        color = c.mutedForeground, fontSize = 12.sp,
+                    )
                 }
-                Text(
-                    "After you pay, send your User ID on WhatsApp. Premium is switched on for your account within a short time.",
-                    color = c.mutedForeground, fontSize = 12.sp,
-                )
 
                 if (auth.isAdmin) {
                     OutlinedButton(
@@ -212,6 +238,27 @@ fun PremiumScreen(vm: AppViewModel) {
                     Text("Sign out", color = c.foreground, modifier = Modifier.padding(start = 8.dp))
                 }
             }
+        }
+
+        // Help & feedback (same in every build): email first, WhatsApp as the second option.
+        Column(
+            modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(24.dp)).background(c.card).padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp),
+        ) {
+            Text("Help & feedback", color = c.foreground, fontFamily = SerifFont, fontSize = 20.sp, fontWeight = FontWeight.SemiBold)
+            Text("Questions, ideas or a problem? We'd love to hear from you.", color = c.mutedForeground, fontSize = 13.sp)
+            Button(
+                onClick = { open("mailto:$SUPPORT_EMAIL?subject=" + Uri.encode("Article Bangla feedback")) },
+                modifier = Modifier.fillMaxWidth().height(48.dp),
+                shape = RoundedCornerShape(14.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = c.primary, contentColor = c.primaryForeground),
+            ) { Text("Email us") }
+            OutlinedButton(
+                onClick = { open(supportWhatsappLink()) },
+                modifier = Modifier.fillMaxWidth().height(48.dp),
+                shape = RoundedCornerShape(14.dp),
+                border = BorderStroke(1.dp, c.border),
+            ) { Text("Chat on WhatsApp", color = c.foreground) }
         }
     }
 }
