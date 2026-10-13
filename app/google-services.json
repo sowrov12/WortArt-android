@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "703831231344",
+    "project_id": "german-articles-bangla",
+    "storage_bucket": "german-articles-bangla.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:703831231344:android:66cc61e1ba2783ca155db5",
+        "android_client_info": {
+          "package_name": "com.sowrov.germanarticlebangla"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "703831231344-fr88vjerv9ap8pfhd1u3000rdgei0kla.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.sowrov.germanarticlebangla",
+            "certificate_hash": "e9f871b0195c1bd6756059102b6c4b461b94b5f6"
+          }
+        },
+        {
+          "client_id": "703831231344-mpkm7gt5augrqku5g08j8a8lf8ros4gq.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.sowrov.germanarticlebangla",
+            "certificate_hash": "0861c4f1288b131b53a3534424c98f9999ca2483"
+          }
+        },
+        {
+          "client_id": "703831231344-c9an0p2l993bk5csqufmnr9psngmiov1.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDKH_GB5NXSoZK1tdauaoc1WYmm0ZQwkxI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "703831231344-c9an0p2l993bk5csqufmnr9psngmiov1.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
