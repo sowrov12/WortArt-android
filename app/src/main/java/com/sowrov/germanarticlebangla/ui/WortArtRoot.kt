@@ -32,6 +32,7 @@ import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.dp
 import androidx.core.view.WindowCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.sowrov.germanarticlebangla.BuildConfig
 import com.sowrov.germanarticlebangla.data.ThemePref
 import com.sowrov.germanarticlebangla.ui.admin.AdminScreen
 import com.sowrov.germanarticlebangla.ui.explore.ExploreScreen
@@ -119,17 +120,27 @@ private fun RootContent(vm: AppViewModel, dark: Boolean) {
             title = { Text(notice.title, color = c.foreground) },
             text = {
                 Text(
-                    if (notice.resets) "${notice.body} It resets tomorrow — or go Premium for unlimited access." else notice.body,
+                    when {
+                        BuildConfig.PLAY_BUILD && notice.resets -> "${notice.body} It resets tomorrow."
+                        notice.resets -> "${notice.body} It resets tomorrow — or go Premium for unlimited access."
+                        else -> notice.body
+                    },
                     color = c.mutedForeground,
                 )
             },
             confirmButton = {
-                TextButton(onClick = { vm.dismissNotice(); vm.openPremiumTab() }) {
-                    Text("Get Premium", color = c.primary)
+                if (BuildConfig.PLAY_BUILD) {
+                    TextButton(onClick = { vm.dismissNotice() }) { Text("OK", color = c.primary) }
+                } else {
+                    TextButton(onClick = { vm.dismissNotice(); vm.openPremiumTab() }) {
+                        Text("Get Premium", color = c.primary)
+                    }
                 }
             },
             dismissButton = {
-                TextButton(onClick = { vm.dismissNotice() }) { Text("Not now", color = c.foreground) }
+                if (!BuildConfig.PLAY_BUILD) {
+                    TextButton(onClick = { vm.dismissNotice() }) { Text("Not now", color = c.foreground) }
+                }
             },
         )
     }
@@ -144,7 +155,11 @@ private fun BottomBar(vm: AppViewModel) {
         NavItem(Tab.Practice, "Practice", AppIcons.Layers),
         NavItem(Tab.Explore, "Explore", AppIcons.Grid),
         NavItem(Tab.Stats, "Stats", AppIcons.Chart),
-        NavItem(Tab.Premium, "Premium", AppIcons.Crown),
+        if (BuildConfig.PLAY_BUILD) {
+            NavItem(Tab.Premium, "Members", AppIcons.Person)
+        } else {
+            NavItem(Tab.Premium, "Premium", AppIcons.Crown)
+        },
     )
     NavigationBar(containerColor = c.card, contentColor = c.foreground) {
         for (item in items) {
