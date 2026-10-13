@@ -61,6 +61,12 @@ fun whatsappLink(plan: Plan, uid: String, email: String): String {
     return "https://wa.me/$WHATSAPP_NUMBER?text=" + java.net.URLEncoder.encode(text, "UTF-8")
 }
 
+const val SUPPORT_EMAIL = "sowrovhin@gmail.com"
+
+/** Neutral support chat (no plan or price in the text). */
+fun supportWhatsappLink(): String =
+    "https://wa.me/$WHATSAPP_NUMBER?text=" + java.net.URLEncoder.encode("Hello, I have feedback about the app.", "UTF-8")
+
 const val FREE_CUSTOM_DECKS = 1
 const val FREE_CATEGORIES_PER_DECK = 2
 
