@@ -151,9 +151,9 @@ fun PremiumScreen(vm: AppViewModel) {
                     Text(user.email, color = c.mutedForeground, fontSize = 13.sp)
                     val until = auth.premiumUntilMs
                     if (auth.isPremium && until != null) {
-                        Text((if (play) "Member until " else "Premium until ") + formatDate(until), color = c.success, fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
+                        Text(if (play) "Member account" else ("Premium until " + formatDate(until)), color = c.success, fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
                     } else if (until != null) {
-                        Text((if (play) "Membership expired on " else "Premium expired on ") + formatDate(until), color = c.destructive, fontSize = 14.sp)
+                        Text(if (play) "Membership inactive" else ("Premium expired on " + formatDate(until)), color = c.destructive, fontSize = 14.sp)
                     } else {
                         Text(if (play) "No active membership" else "Free plan", color = c.mutedForeground, fontSize = 14.sp)
                     }
