@@ -26,10 +26,14 @@ jobs:
         with:
           gradle-version: "8.9"
 
-      - name: Build release APK
+      - name: Build APKs (direct + Google Play version)
         run: |
           set -o pipefail
-          gradle assembleRelease --no-daemon 2>&1 | tee build.log
+          mkdir -p dist
+          gradle assembleRelease --no-daemon -PPLAY_BUILD=false 2>&1 | tee build.log
+          cp app/build/outputs/apk/release/app-release.apk dist/WortArt-direct.apk
+          gradle assembleRelease --no-daemon -PPLAY_BUILD=true 2>&1 | tee -a build.log
+          cp app/build/outputs/apk/release/app-release.apk dist/WortArt-play.apk
 
       - name: Show errors in summary
         if: failure()
@@ -45,5 +49,5 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: WortArt-apk
-          path: app/build/outputs/apk/release/*.apk
+          path: dist/*.apk
           if-no-files-found: error
