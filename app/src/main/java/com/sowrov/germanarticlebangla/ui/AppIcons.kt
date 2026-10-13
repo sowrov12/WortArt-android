@@ -42,6 +42,7 @@ import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.PhoneAndroid
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Public
 import androidx.compose.material.icons.filled.Restaurant
 import androidx.compose.material.icons.filled.Schedule
@@ -86,6 +87,7 @@ object AppIcons {
     val Moon: ImageVector = Icons.Filled.DarkMode
     val More: ImageVector = Icons.Filled.MoreVert
     val Phone: ImageVector = Icons.Filled.PhoneAndroid
+    val Person: ImageVector = Icons.Filled.Person
     val School: ImageVector = Icons.Filled.School
     val Search: ImageVector = Icons.Filled.Search
     val Skip: ImageVector = Icons.Filled.SkipNext
