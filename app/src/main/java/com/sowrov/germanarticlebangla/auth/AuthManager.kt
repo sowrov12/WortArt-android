@@ -11,7 +11,9 @@ import com.google.android.libraries.identity.googleid.GetGoogleIdOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import com.google.firebase.FirebaseApp
 import com.google.firebase.Timestamp
+import com.google.firebase.auth.AuthCredential
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseAuthRecentLoginRequiredException
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.firestore.DocumentSnapshot
@@ -66,6 +68,10 @@ class AuthManager(context: Context, private val scope: CoroutineScope) {
     private var profileListener: ListenerRegistration? = null
     private var expiryJob: Job? = null
 
+    /** true while an account deletion is running, so the profile is not re-created. */
+    @Volatile
+    private var deleting = false
+
     init {
         if (firebaseReady) {
             FirebaseAuth.getInstance().addAuthStateListener { auth -> onUserChanged(auth.currentUser) }
@@ -110,6 +116,7 @@ class AuthManager(context: Context, private val scope: CoroutineScope) {
                 return@addSnapshotListener
             }
             if (snap == null || !snap.exists()) {
+                if (deleting) return@addSnapshotListener
                 // First login: create the profile. premiumUntil is never written by the client.
                 val data = hashMapOf<String, Any>(
                     "email" to appUser.email,
@@ -142,7 +149,7 @@ class AuthManager(context: Context, private val scope: CoroutineScope) {
         }
     }
 
-    suspend fun signIn(activity: Activity) {
+    private suspend fun googleFirebaseCredential(activity: Activity): AuthCredential {
         if (!firebaseReady) throw IllegalStateException("Firebase is not configured yet.")
         val resId = activity.resources.getIdentifier("default_web_client_id", "string", activity.packageName)
         if (resId == 0) throw IllegalStateException("default_web_client_id is missing in google-services.json")
@@ -159,10 +166,39 @@ class AuthManager(context: Context, private val scope: CoroutineScope) {
             credential.type == GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL
         ) {
             val google = GoogleIdTokenCredential.createFrom(credential.data)
-            val firebaseCredential = GoogleAuthProvider.getCredential(google.idToken, null)
-            FirebaseAuth.getInstance().signInWithCredential(firebaseCredential).await()
-        } else {
-            throw IllegalStateException("Unexpected credential type")
+            return GoogleAuthProvider.getCredential(google.idToken, null)
+        }
+        throw IllegalStateException("Unexpected credential type")
+    }
+
+    suspend fun signIn(activity: Activity) {
+        val credential = googleFirebaseCredential(activity)
+        FirebaseAuth.getInstance().signInWithCredential(credential).await()
+    }
+
+    /**
+     * Deletes the profile document first, then the login account.
+     * If Firebase wants a fresh login, Google sign-in is asked once more.
+     */
+    suspend fun deleteAccount(activity: Activity) {
+        if (!firebaseReady) throw IllegalStateException("Firebase is not configured yet.")
+        val user = FirebaseAuth.getInstance().currentUser ?: throw IllegalStateException("Not signed in")
+        deleting = true
+        try {
+            FirebaseFirestore.getInstance().collection(USERS_COLLECTION).document(user.uid).delete().await()
+            try {
+                user.delete().await()
+            } catch (e: FirebaseAuthRecentLoginRequiredException) {
+                user.reauthenticate(googleFirebaseCredential(activity)).await()
+                user.delete().await()
+            }
+        } finally {
+            deleting = false
+        }
+        try {
+            CredentialManager.create(appContext).clearCredentialState(ClearCredentialStateRequest())
+        } catch (e: Exception) {
+            // not important
         }
     }
 
