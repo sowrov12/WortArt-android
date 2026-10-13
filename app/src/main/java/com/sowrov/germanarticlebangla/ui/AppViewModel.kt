@@ -103,6 +103,10 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
         private set
     var signInError by mutableStateOf<String?>(null)
         private set
+    var deletePending by mutableStateOf(false)
+        private set
+    var deleteMessage by mutableStateOf<String?>(null)
+        private set
 
     init {
         // Refresh the words from the live Google Sheet in the background.
@@ -273,6 +277,7 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
             return
         }
         signInError = null
+        deleteMessage = null
         signInPending = true
         viewModelScope.launch {
             try {
@@ -285,6 +290,24 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
                 signInError = "Sign-in failed (${e.javaClass.simpleName}: ${e.message?.take(80) ?: "no details"}). Check your internet and try again."
             } finally {
                 signInPending = false
+            }
+        }
+    }
+
+    fun deleteAccount(activity: Activity) {
+        if (deletePending) return
+        deletePending = true
+        deleteMessage = null
+        viewModelScope.launch {
+            try {
+                auth.deleteAccount(activity)
+                deleteMessage = "Your account was deleted."
+            } catch (e: GetCredentialCancellationException) {
+                deleteMessage = "Deletion cancelled."
+            } catch (e: Exception) {
+                deleteMessage = "Could not delete the account (${e.javaClass.simpleName}: ${e.message?.take(80) ?: "no details"}). Please try again or contact support."
+            } finally {
+                deletePending = false
             }
         }
     }
