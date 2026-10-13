@@ -6,6 +6,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.credentials.exceptions.GetCredentialCancellationException
+import androidx.credentials.exceptions.NoCredentialException
+import coil.imageLoader
+import coil.request.ImageRequest
+import com.sowrov.germanarticlebangla.data.categoryImageUrl
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.sowrov.germanarticlebangla.auth.AuthManager
@@ -101,9 +105,23 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
         // Refresh the words from the live Google Sheet in the background.
         viewModelScope.launch {
             val remote = withContext(Dispatchers.IO) { repository.fetchRemote() }
-            if (remote != null) _catalog.value = remote
+            if (remote != null) {
+                _catalog.value = remote
+                prefetchImages(remote)
+            }
         }
+        prefetchImages(_catalog.value)
         if (progressStore.progress.value.settings.reminders) Reminders.schedule(ctx)
+    }
+
+    /** Downloads the small category images in the background so cards open instantly. */
+    private fun prefetchImages(catalog: Catalog) {
+        for (topic in catalog.topics) {
+            for (background in listOf(false, true)) {
+                val url = categoryImageUrl(topic, background) ?: continue
+                ctx.imageLoader.enqueue(ImageRequest.Builder(ctx).data(url).build())
+            }
+        }
     }
 
     // ----- navigation -----------------------------------------------------------------------
@@ -246,8 +264,10 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
                 auth.signIn(activity)
             } catch (e: GetCredentialCancellationException) {
                 // user closed the Google dialog
+            } catch (e: NoCredentialException) {
+                signInError = "No Google account found on this phone. Add one in Settings and try again."
             } catch (e: Exception) {
-                signInError = "Sign-in failed. Please try again."
+                signInError = "Sign-in failed (${e.javaClass.simpleName}: ${e.message?.take(80) ?: "no details"}). Check your internet and try again."
             } finally {
                 signInPending = false
             }
