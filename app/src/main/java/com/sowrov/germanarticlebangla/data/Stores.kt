@@ -62,6 +62,8 @@ fun whatsappLink(plan: Plan, uid: String, email: String): String {
 }
 
 const val SUPPORT_EMAIL = "sowrovhin@gmail.com"
+const val PRIVACY_URL = "https://wortart.vercel.app/privacy-policy.html"
+const val DELETE_ACCOUNT_URL = "https://wortart.vercel.app/delete-account.html"
 
 /** Neutral support chat (no plan or price in the text). */
 fun supportWhatsappLink(): String =
