@@ -118,7 +118,7 @@ fun PracticeScreen(vm: AppViewModel, onToggleReminders: (Boolean) -> Unit) {
     val deck = vm.effectiveDeck()
     val deckLocked = access.lockedIds.contains(deck)
 
-    val resetKey = listOf<Any>(deck, settings.level, access.isPremium, catalog.version)
+    val resetKey = listOf<Any>(deck, settings.level)
     val session = remember(resetKey) {
         vm.practiceSession(resetKey) {
             wordsForDeck(
@@ -129,6 +129,21 @@ fun PracticeScreen(vm: AppViewModel, onToggleReminders: (Boolean) -> Unit) {
     var cards by session::cards
     var index by session::index
     var answer by session::answer
+
+    // When the live word list or Premium status arrives after launch, add the new words
+    // but keep showing the card the user is already looking at.
+    LaunchedEffect(access.lockedIds, catalog.version) {
+        val fresh = wordsForDeck(
+            catalog.words, deck, progress.favorites, settings.level, access.lockedIds, customDecks,
+        )
+        val existingIds = session.cards.map { it.id }.toHashSet()
+        if (fresh.size == existingIds.size && fresh.all { existingIds.contains(it.id) }) return@LaunchedEffect
+        val shuffled = fresh.shuffled()
+        val currentWord = session.cards.getOrNull(session.index)
+        val keep = if (currentWord != null) shuffled.firstOrNull { it.id == currentWord.id } else null
+        session.cards = if (keep != null) listOf(keep) + shuffled.filter { it.id != keep.id } else shuffled
+        session.index = 0
+    }
     var shownAt by remember(resetKey) { mutableLongStateOf(System.currentTimeMillis()) }
 
     val current: Word? = cards.getOrNull(index)
@@ -252,7 +267,7 @@ fun PracticeScreen(vm: AppViewModel, onToggleReminders: (Boolean) -> Unit) {
                 modifier = Modifier.weight(1f),
             )
         } else {
-            androidx.compose.runtime.key(current?.id, index) {
+            androidx.compose.runtime.key(current?.id) {
                 WordCard(
                     word = current,
                     answer = answer,
