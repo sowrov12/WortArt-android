@@ -20,14 +20,19 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -41,6 +46,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.sowrov.germanarticlebangla.BuildConfig
 import com.sowrov.germanarticlebangla.data.PLANS
+import com.sowrov.germanarticlebangla.data.PRIVACY_URL
 import com.sowrov.germanarticlebangla.data.SUPPORT_EMAIL
 import com.sowrov.germanarticlebangla.data.activationWhatsappLink
 import com.sowrov.germanarticlebangla.data.supportWhatsappLink
@@ -74,6 +80,7 @@ fun PremiumScreen(vm: AppViewModel) {
     val uriHandler = LocalUriHandler.current
     val clipboard = LocalClipboardManager.current
     val user = auth.user
+    var confirmDelete by remember { mutableStateOf(false) }
 
     fun open(uri: String) {
         try {
@@ -100,6 +107,30 @@ fun PremiumScreen(vm: AppViewModel) {
                 color = c.mutedForeground, fontSize = 14.sp,
             )
         }
+
+        if (confirmDelete) {
+            AlertDialog(
+                onDismissRequest = { confirmDelete = false },
+                containerColor = c.card,
+                title = { Text("Delete your account?", color = c.foreground) },
+                text = {
+                    Text(
+                        "Your profile and membership will be permanently removed from our servers. This cannot be undone. Practice progress saved on this phone is not affected.",
+                        color = c.mutedForeground,
+                    )
+                },
+                confirmButton = {
+                    TextButton(onClick = { confirmDelete = false; context.findActivity()?.let { vm.deleteAccount(it) } }) {
+                        Text("Delete", color = c.destructive)
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = { confirmDelete = false }) { Text("Cancel", color = c.foreground) }
+                },
+            )
+        }
+        val deleteMessage = vm.deleteMessage
+        if (deleteMessage != null) Text(deleteMessage, color = c.mutedForeground, fontSize = 13.sp)
 
         // Benefits
         Column(
@@ -238,10 +269,24 @@ fun PremiumScreen(vm: AppViewModel) {
                     Icon(AppIcons.Logout, null, tint = c.mutedForeground, modifier = Modifier.size(18.dp))
                     Text("Sign out", color = c.foreground, modifier = Modifier.padding(start = 8.dp))
                 }
+                OutlinedButton(
+                    onClick = { confirmDelete = true },
+                    enabled = !vm.deletePending,
+                    modifier = Modifier.fillMaxWidth().height(52.dp),
+                    shape = RoundedCornerShape(16.dp),
+                    border = BorderStroke(1.dp, c.destructive.copy(alpha = 0.5f)),
+                ) {
+                    Icon(AppIcons.Delete, null, tint = c.destructive, modifier = Modifier.size(18.dp))
+                    Text(
+                        if (vm.deletePending) "Deleting…" else "Delete account",
+                        color = c.destructive, modifier = Modifier.padding(start = 8.dp),
+                    )
+                }
             }
         }
 
-        if (play) {
+        // Hidden once the account is an active member.
+        if (play && !auth.isPremium) {
             Column(
                 modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(24.dp)).background(c.card).padding(16.dp),
                 verticalArrangement = Arrangement.spacedBy(10.dp),
@@ -276,6 +321,10 @@ fun PremiumScreen(vm: AppViewModel) {
                 shape = RoundedCornerShape(14.dp),
                 border = BorderStroke(1.dp, c.border),
             ) { Text("Chat on WhatsApp", color = c.foreground) }
+            Text(
+                "Privacy policy", color = c.primary, fontSize = 13.sp,
+                modifier = Modifier.clickable { open(PRIVACY_URL) }.padding(vertical = 4.dp),
+            )
         }
     }
 }
