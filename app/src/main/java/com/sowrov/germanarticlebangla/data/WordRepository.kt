@@ -23,6 +23,9 @@ class WordRepository(context: Context) {
         return Catalog(words, buildCategoryList(words, parseCategoryTable(csv)), version)
     }
 
+    /** true when a live copy of the sheet was downloaded on an earlier launch. */
+    fun hasCache(): Boolean = cacheFile.exists()
+
     /** Fast, no network. Never returns null (the bundled snapshot is always valid). */
     fun loadLocal(): Catalog {
         if (cacheFile.exists()) {
