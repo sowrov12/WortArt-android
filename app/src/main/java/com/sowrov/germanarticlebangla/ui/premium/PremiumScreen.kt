@@ -9,6 +9,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -24,6 +25,8 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
@@ -54,6 +57,7 @@ import com.sowrov.germanarticlebangla.data.whatsappLink
 import com.sowrov.germanarticlebangla.ui.AppIcons
 import com.sowrov.germanarticlebangla.ui.AppViewModel
 import com.sowrov.germanarticlebangla.ui.IconTile
+import com.sowrov.germanarticlebangla.ui.RoundIconButton
 import com.sowrov.germanarticlebangla.ui.theme.SerifFont
 import com.sowrov.germanarticlebangla.ui.theme.WortTheme
 import java.text.SimpleDateFormat
@@ -81,6 +85,7 @@ fun PremiumScreen(vm: AppViewModel) {
     val clipboard = LocalClipboardManager.current
     val user = auth.user
     var confirmDelete by remember { mutableStateOf(false) }
+    var accountMenu by remember { mutableStateOf(false) }
 
     fun open(uri: String) {
         try {
@@ -97,15 +102,38 @@ fun PremiumScreen(vm: AppViewModel) {
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
-        Column {
-            Text(
-                if (play) "Member Access" else "Premium",
-                color = c.foreground, fontFamily = SerifFont, fontSize = 28.sp, fontWeight = FontWeight.SemiBold,
-            )
-            Text(
-                if (play) "Your membership and support." else "Unlimited learning, every category.",
-                color = c.mutedForeground, fontSize = 14.sp,
-            )
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.Top,
+            horizontalArrangement = Arrangement.SpaceBetween,
+        ) {
+            Column(Modifier.weight(1f)) {
+                Text(
+                    if (play) "Member Access" else "Premium",
+                    color = c.foreground, fontFamily = SerifFont, fontSize = 28.sp, fontWeight = FontWeight.SemiBold,
+                )
+                Text(
+                    if (play) "Your membership and support." else "Unlimited learning, every category.",
+                    color = c.mutedForeground, fontSize = 14.sp,
+                )
+            }
+            // Account options (only when signed in): Delete account lives here, away from Sign out.
+            if (user != null) {
+                Box {
+                    RoundIconButton(
+                        AppIcons.More, "Account options", c.mutedForeground, c.card,
+                        onClick = { accountMenu = true }, size = 40,
+                    )
+                    DropdownMenu(expanded = accountMenu, onDismissRequest = { accountMenu = false }) {
+                        DropdownMenuItem(
+                            text = { Text("Delete account", color = c.destructive) },
+                            leadingIcon = { Icon(AppIcons.Delete, null, tint = c.destructive) },
+                            enabled = !vm.deletePending,
+                            onClick = { accountMenu = false; confirmDelete = true },
+                        )
+                    }
+                }
+            }
         }
 
         if (confirmDelete) {
@@ -268,19 +296,6 @@ fun PremiumScreen(vm: AppViewModel) {
                 ) {
                     Icon(AppIcons.Logout, null, tint = c.mutedForeground, modifier = Modifier.size(18.dp))
                     Text("Sign out", color = c.foreground, modifier = Modifier.padding(start = 8.dp))
-                }
-                OutlinedButton(
-                    onClick = { confirmDelete = true },
-                    enabled = !vm.deletePending,
-                    modifier = Modifier.fillMaxWidth().height(52.dp),
-                    shape = RoundedCornerShape(16.dp),
-                    border = BorderStroke(1.dp, c.destructive.copy(alpha = 0.5f)),
-                ) {
-                    Icon(AppIcons.Delete, null, tint = c.destructive, modifier = Modifier.size(18.dp))
-                    Text(
-                        if (vm.deletePending) "Deleting…" else "Delete account",
-                        color = c.destructive, modifier = Modifier.padding(start = 8.dp),
-                    )
                 }
             }
         }
