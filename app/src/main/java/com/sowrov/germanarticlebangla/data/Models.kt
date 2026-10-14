@@ -17,6 +17,27 @@ enum class LevelFilter(val id: String, val short: String, val label: String) {
     }
 }
 
+/** The three study levels a learner can combine (no separate "All" option). */
+val LEVEL_IDS: List<String> = listOf("A1", "A2", "B1")
+
+fun levelName(id: String): String = when (id) {
+    "A1" -> "Beginner"
+    "A2" -> "Elementary"
+    "B1" -> "Intermediate"
+    else -> id
+}
+
+/** Short text for the header pill: "A1", "A1+A2" or "All". */
+fun levelPillText(levels: Set<String>): String =
+    if (levels.size >= LEVEL_IDS.size) "All" else LEVEL_IDS.filter { levels.contains(it) }.joinToString("+")
+
+/** Text for the menu row: "Beginner", "A1 + A2" or "All levels". */
+fun levelSummary(levels: Set<String>): String = when {
+    levels.size >= LEVEL_IDS.size -> "All levels"
+    levels.size == 1 -> levelName(levels.first())
+    else -> LEVEL_IDS.filter { levels.contains(it) }.joinToString(" + ")
+}
+
 data class Word(
     val id: String,
     val word: String,
@@ -296,7 +317,7 @@ fun wordsForDeck(
     words: List<Word>,
     deck: String,
     favorites: List<String>,
-    level: LevelFilter,
+    levels: Set<String>,
     lockedIds: Set<String>,
     customDecks: List<CustomDeck>,
 ): List<Word> {
@@ -304,7 +325,7 @@ fun wordsForDeck(
         return words.filter { favorites.contains(it.id) && !lockedIds.contains(it.category) }
     }
     if (lockedIds.contains(deck)) return emptyList()
-    val atLevel = filterByLevel(words, level)
+    val atLevel = words.filter { levels.contains(it.level) }
     if (deck == "all") return atLevel.filter { !lockedIds.contains(it.category) }
     val custom = customDecks.firstOrNull { it.id == deck }
     if (custom != null) {
