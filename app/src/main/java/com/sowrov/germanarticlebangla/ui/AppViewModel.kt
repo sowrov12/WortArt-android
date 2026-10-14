@@ -36,6 +36,7 @@ import com.sowrov.germanarticlebangla.data.Word
 import com.sowrov.germanarticlebangla.util.Reminders
 import com.sowrov.germanarticlebangla.util.Speaker
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -87,6 +88,12 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
         Access(false, _catalog.value.topics.filter { it.premium }.map { it.id }.toSet()),
     )
 
+    /**
+     * First launch has only the bundled word list. Practice waits (at most a few seconds) for the live list,
+     * so the first card is not swapped a moment later.
+     */
+    var catalogReady by mutableStateOf(repository.hasCache())
+        private set
     var tab by mutableStateOf(Tab.Practice)
         private set
     var selectedDeck by mutableStateOf("all")
@@ -116,6 +123,11 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
                 _catalog.value = remote
                 prefetchImages(remote)
             }
+            catalogReady = true
+        }
+        viewModelScope.launch {
+            delay(4000)
+            catalogReady = true
         }
         prefetchImages(_catalog.value)
         if (progressStore.progress.value.settings.reminders) Reminders.schedule(ctx)
@@ -240,7 +252,16 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
 
     fun resetStats() = progressStore.resetStats()
 
-    fun setLevel(level: LevelFilter) = progressStore.updateSettings { it.copy(level = level) }
+    /** Levels can be combined; at least one always stays selected. */
+    fun toggleLevel(id: String) = progressStore.updateSettings { s: Settings ->
+        val current = s.levels
+        val next = if (current.contains(id)) {
+            if (current.size > 1) current - id else current
+        } else {
+            current + id
+        }
+        s.copy(levels = next)
+    }
 
     fun setReadAloud(on: Boolean, currentWord: String?) {
         progressStore.updateSettings { it.copy(readAloud = on) }
