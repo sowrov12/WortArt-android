@@ -95,7 +95,8 @@ data class Stats(
 )
 
 data class Settings(
-    val level: LevelFilter = LevelFilter.A1,
+    /** Any combination of A1 / A2 / B1 (never empty). */
+    val levels: Set<String> = setOf("A1"),
     val reminders: Boolean = false,
     val readAloud: Boolean = true,
 )
@@ -159,6 +160,25 @@ private fun bump(progress: Progress, counter: DailyCounter): DailyUsage {
 fun getActiveStreak(stats: Stats): Int {
     val streakDay = stats.streakDay ?: return 0
     return if (streakDay == dayKey() || streakDay == yesterdayKey()) stats.streak else 0
+}
+
+private fun readLevels(st: JSONObject): Set<String> {
+    val arr = st.optJSONArray("levels")
+    if (arr != null) {
+        val picked = LinkedHashSet<String>()
+        for (i in 0 until arr.length()) {
+            val id = arr.optString(i)
+            if (LEVEL_IDS.contains(id)) picked.add(id)
+        }
+        if (picked.isNotEmpty()) return picked
+    }
+    // Older versions stored a single level (or "all").
+    return when (st.optString("level", "A1")) {
+        "all" -> LEVEL_IDS.toSet()
+        "A2" -> setOf("A2")
+        "B1" -> setOf("B1")
+        else -> setOf("A1")
+    }
 }
 
 private fun JSONObject.stringOrNull(key: String): String? =
@@ -259,7 +279,9 @@ class ProgressStore(context: Context) {
             stats.put("streakDay", p.stats.streakDay ?: JSONObject.NULL)
 
             val settings = JSONObject()
-            settings.put("level", p.settings.level.id)
+            val levelsArray = JSONArray()
+            for (id in LEVEL_IDS) if (p.settings.levels.contains(id)) levelsArray.put(id)
+            settings.put("levels", levelsArray)
             settings.put("reminders", p.settings.reminders)
             settings.put("readAloud", p.settings.readAloud)
 
@@ -305,7 +327,7 @@ class ProgressStore(context: Context) {
                     ),
                     favorites = favorites,
                     settings = if (st == null) Settings() else Settings(
-                        level = LevelFilter.fromId(st.optString("level", "A1")),
+                        levels = readLevels(st),
                         reminders = st.optBoolean("reminders", false),
                         readAloud = st.optBoolean("readAloud", true),
                     ),
