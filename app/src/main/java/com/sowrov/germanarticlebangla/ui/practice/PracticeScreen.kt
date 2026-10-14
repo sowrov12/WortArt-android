@@ -4,6 +4,7 @@ import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -49,6 +50,7 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
@@ -62,6 +64,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.imageLoader
 import coil.request.ImageRequest
 import com.sowrov.germanarticlebangla.BuildConfig
+import com.sowrov.germanarticlebangla.R
 import com.sowrov.germanarticlebangla.data.ARTICLES
 import com.sowrov.germanarticlebangla.data.Article
 import com.sowrov.germanarticlebangla.data.Category
@@ -714,9 +717,13 @@ private fun PracticeHeader(
                     RollingNumber(streak, if (active) c.primary else c.mutedForeground, 14.sp)
                 }
             }
-            RoundIconButton(
-                AppIcons.More, "More options", c.mutedForeground, Color.Transparent,
-                onClick = { page = MenuPage.Main; menuOpen = true }, size = 36,
+            Image(
+                painter = painterResource(R.drawable.ic_settings_tile),
+                contentDescription = "Menu",
+                modifier = Modifier
+                    .size(40.dp)
+                    .clip(RoundedCornerShape(12.dp))
+                    .clickable { page = MenuPage.Main; menuOpen = true },
             )
         }
     }
