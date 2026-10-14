@@ -7,7 +7,9 @@ import androidx.credentials.ClearCredentialStateRequest
 import androidx.credentials.CredentialManager
 import androidx.credentials.CustomCredential
 import androidx.credentials.GetCredentialRequest
+import androidx.credentials.exceptions.NoCredentialException
 import com.google.android.libraries.identity.googleid.GetGoogleIdOption
+import com.google.android.libraries.identity.googleid.GetSignInWithGoogleOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import com.google.firebase.FirebaseApp
 import com.google.firebase.Timestamp
@@ -160,7 +162,16 @@ class AuthManager(context: Context, private val scope: CoroutineScope) {
             .setServerClientId(webClientId)
             .build()
         val request = GetCredentialRequest.Builder().addCredentialOption(option).build()
-        val result = CredentialManager.create(activity).getCredential(activity, request)
+        val manager = CredentialManager.create(activity)
+        val result = try {
+            manager.getCredential(activity, request)
+        } catch (e: NoCredentialException) {
+            // Seen after signing out: retry with the explicit "Sign in with Google" chooser.
+            val buttonRequest = GetCredentialRequest.Builder()
+                .addCredentialOption(GetSignInWithGoogleOption.Builder(webClientId).build())
+                .build()
+            manager.getCredential(activity, buttonRequest)
+        }
         val credential = result.credential
         if (credential is CustomCredential &&
             credential.type == GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL
@@ -195,21 +206,11 @@ class AuthManager(context: Context, private val scope: CoroutineScope) {
         } finally {
             deleting = false
         }
-        try {
-            CredentialManager.create(appContext).clearCredentialState(ClearCredentialStateRequest())
-        } catch (e: Exception) {
-            // not important
-        }
     }
 
     suspend fun signOut() {
         if (!firebaseReady) return
         FirebaseAuth.getInstance().signOut()
-        try {
-            CredentialManager.create(appContext).clearCredentialState(ClearCredentialStateRequest())
-        } catch (e: Exception) {
-            // not important
-        }
     }
 }
 
