@@ -26,6 +26,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -70,7 +71,10 @@ import com.sowrov.germanarticlebangla.data.Article
 import com.sowrov.germanarticlebangla.data.Category
 import com.sowrov.germanarticlebangla.data.DAILY_GOAL
 import com.sowrov.germanarticlebangla.data.DailyCounter
-import com.sowrov.germanarticlebangla.data.LevelFilter
+import com.sowrov.germanarticlebangla.data.LEVEL_IDS
+import com.sowrov.germanarticlebangla.data.levelName
+import com.sowrov.germanarticlebangla.data.levelPillText
+import com.sowrov.germanarticlebangla.data.levelSummary
 import com.sowrov.germanarticlebangla.data.ThemePref
 import com.sowrov.germanarticlebangla.data.Word
 import com.sowrov.germanarticlebangla.data.categoryImageBackupUrl
@@ -113,6 +117,12 @@ private const val CORRECT_DELAY_MS = 450L
 @Composable
 fun PracticeScreen(vm: AppViewModel, onToggleReminders: (Boolean) -> Unit) {
     val c = WortTheme.colors
+    if (!vm.catalogReady) {
+        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            CircularProgressIndicator(color = c.primary)
+        }
+        return
+    }
     val progress by vm.progress.collectAsStateWithLifecycle()
     val catalog by vm.catalog.collectAsStateWithLifecycle()
     val access by vm.access.collectAsStateWithLifecycle()
@@ -121,11 +131,11 @@ fun PracticeScreen(vm: AppViewModel, onToggleReminders: (Boolean) -> Unit) {
     val deck = vm.effectiveDeck()
     val deckLocked = access.lockedIds.contains(deck)
 
-    val resetKey = listOf<Any>(deck, settings.level)
+    val resetKey = listOf<Any>(deck, settings.levels)
     val session = remember(resetKey) {
         vm.practiceSession(resetKey) {
             wordsForDeck(
-                catalog.words, deck, progress.favorites, settings.level, access.lockedIds, customDecks,
+                catalog.words, deck, progress.favorites, settings.levels, access.lockedIds, customDecks,
             ).shuffled()
         }
     }
@@ -137,14 +147,18 @@ fun PracticeScreen(vm: AppViewModel, onToggleReminders: (Boolean) -> Unit) {
     // but keep showing the card the user is already looking at.
     LaunchedEffect(access.lockedIds, catalog.version) {
         val fresh = wordsForDeck(
-            catalog.words, deck, progress.favorites, settings.level, access.lockedIds, customDecks,
+            catalog.words, deck, progress.favorites, settings.levels, access.lockedIds, customDecks,
         )
         val existingIds = session.cards.map { it.id }.toHashSet()
         if (fresh.size == existingIds.size && fresh.all { existingIds.contains(it.id) }) return@LaunchedEffect
         val shuffled = fresh.shuffled()
         val currentWord = session.cards.getOrNull(session.index)
-        val keep = if (currentWord != null) shuffled.firstOrNull { it.id == currentWord.id } else null
-        session.cards = if (keep != null) listOf(keep) + shuffled.filter { it.id != keep.id } else shuffled
+        // Keep showing the card on screen, even if the new list no longer contains it.
+        session.cards = if (currentWord != null && shuffled.isNotEmpty()) {
+            listOf(currentWord) + shuffled.filter { it.id != currentWord.id }
+        } else {
+            shuffled
+        }
         session.index = 0
     }
     var shownAt by remember(resetKey) { mutableLongStateOf(System.currentTimeMillis()) }
@@ -256,7 +270,7 @@ fun PracticeScreen(vm: AppViewModel, onToggleReminders: (Boolean) -> Unit) {
             )
         } else if (cards.isEmpty()) {
             val isFav = deck == "favorites"
-            val levelText = if (settings.level == LevelFilter.ALL) "" else "${settings.level.id} "
+            val levelText = if (settings.levels.size >= LEVEL_IDS.size) "" else LEVEL_IDS.filter { settings.levels.contains(it) }.joinToString("/") + " "
             InfoPane(
                 icon = if (isFav) AppIcons.Favorite else AppIcons.Layers,
                 title = if (isFav) "No favorites yet" else "No ${levelText}words here",
@@ -693,7 +707,7 @@ private fun PracticeHeader(
                 Icon(AppIcons.ChevronDown, null, tint = c.mutedForeground, modifier = Modifier.size(16.dp))
             }
             Text(
-                settings.level.short, color = c.primary, fontSize = 12.sp, fontWeight = FontWeight.Bold,
+                levelPillText(settings.levels), color = c.primary, fontSize = 12.sp, fontWeight = FontWeight.Bold,
                 modifier = Modifier.clip(CircleShape).background(c.card).padding(horizontal = 10.dp, vertical = 7.dp),
             )
         }
@@ -745,7 +759,7 @@ private fun PracticeHeader(
             ) {
                 when (page) {
                     MenuPage.Main -> {
-                        MenuRow(AppIcons.School, "Level", { page = MenuPage.Level }, trailing = settings.level.label)
+                        MenuRow(AppIcons.School, "Level", { page = MenuPage.Level }, trailing = levelSummary(settings.levels))
                         SwitchRow(AppIcons.Bell, "Reminders", "Daily practice nudge", settings.reminders, onToggleReminders)
                         SwitchRow(AppIcons.Audio, "Read flashcards", "Speak each new word", settings.readAloud) {
                             vm.setReadAloud(it, currentWord)
@@ -759,11 +773,15 @@ private fun PracticeHeader(
                     }
                     MenuPage.Level -> {
                         SubHeader("Level") { page = MenuPage.Main }
-                        for (level in LevelFilter.entries) {
+                        Text(
+                            "Choose one or more levels.", color = c.mutedForeground, fontSize = 13.sp,
+                            modifier = Modifier.padding(start = 4.dp, bottom = 6.dp),
+                        )
+                        for (id in LEVEL_IDS) {
                             ChoiceRow(
-                                label = "${level.short}  ·  ${level.label}",
-                                selected = settings.level == level,
-                            ) { vm.setLevel(level); page = MenuPage.Main }
+                                label = "$id  ·  ${levelName(id)}",
+                                selected = settings.levels.contains(id),
+                            ) { vm.toggleLevel(id) }
                         }
                     }
                     MenuPage.Decks -> {
