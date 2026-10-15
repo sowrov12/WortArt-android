@@ -107,6 +107,10 @@ fun StatsScreen(vm: AppViewModel) {
             StatTile(AppIcons.Clock, "Time practiced", formatTime(stats.timeSpentMs), Modifier.weight(1f))
             StatTile(AppIcons.Favorite, "Favorites", progress.favorites.size.toString(), Modifier.weight(1f))
         }
+        Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            StatTile(AppIcons.Mic, "Total Pronunciation", stats.pronTotal.toString(), Modifier.weight(1f))
+            StatTile(AppIcons.Check, "Perfect Pronunciation", stats.pronPerfect.toString(), Modifier.weight(1f))
+        }
 
         OutlinedButton(
             onClick = { confirmReset = true },
@@ -142,7 +146,7 @@ private fun StatTile(icon: ImageVector, label: String, value: String, modifier: 
     ) {
         IconTile(icon, c.primary, size = 44)
         Column {
-            Text(label, color = c.mutedForeground, fontSize = 13.sp, maxLines = 1)
+            Text(label, color = c.mutedForeground, fontSize = 13.sp, maxLines = 2)
             Text(
                 value, color = c.foreground, fontWeight = FontWeight.Bold, maxLines = 1, softWrap = false,
                 fontSize = if (value.length > 5) 20.sp else 28.sp,
