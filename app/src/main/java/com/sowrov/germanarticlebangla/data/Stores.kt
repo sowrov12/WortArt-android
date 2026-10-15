@@ -92,6 +92,9 @@ data class Stats(
     val lastPlayedDay: String? = null,
     /** Last day the 10-card daily goal was reached; the streak only grows on this. */
     val streakDay: String? = null,
+    /** Every recognized pronunciation attempt / the ones that were perfect. */
+    val pronTotal: Int = 0,
+    val pronPerfect: Int = 0,
 )
 
 data class Settings(
@@ -212,7 +215,7 @@ class ProgressStore(context: Context) {
         val currentRun = if (isCorrect) stats.currentRun + 1 else 0
         write(
             current.copy(
-                stats = Stats(
+                stats = stats.copy(
                     cardsPlayed = stats.cardsPlayed + 1,
                     correct = stats.correct + if (isCorrect) 1 else 0,
                     currentRun = currentRun,
@@ -223,6 +226,19 @@ class ProgressStore(context: Context) {
                     streakDay = streakDay,
                 ),
                 daily = daily,
+            )
+        )
+    }
+
+    fun recordPronunciation(perfect: Boolean) {
+        val current = _progress.value
+        val s = current.stats
+        write(
+            current.copy(
+                stats = s.copy(
+                    pronTotal = s.pronTotal + 1,
+                    pronPerfect = s.pronPerfect + if (perfect) 1 else 0,
+                )
             )
         )
     }
@@ -277,6 +293,8 @@ class ProgressStore(context: Context) {
             stats.put("streak", p.stats.streak)
             stats.put("lastPlayedDay", p.stats.lastPlayedDay ?: JSONObject.NULL)
             stats.put("streakDay", p.stats.streakDay ?: JSONObject.NULL)
+            stats.put("pronTotal", p.stats.pronTotal)
+            stats.put("pronPerfect", p.stats.pronPerfect)
 
             val settings = JSONObject()
             val levelsArray = JSONArray()
@@ -324,6 +342,8 @@ class ProgressStore(context: Context) {
                         streak = s.optInt("streak", 0),
                         lastPlayedDay = s.stringOrNull("lastPlayedDay"),
                         streakDay = s.stringOrNull("streakDay"),
+                        pronTotal = s.optInt("pronTotal", 0),
+                        pronPerfect = s.optInt("pronPerfect", 0),
                     ),
                     favorites = favorites,
                     settings = if (st == null) Settings() else Settings(
