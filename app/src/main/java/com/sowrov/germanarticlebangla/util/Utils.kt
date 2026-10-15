@@ -54,6 +54,14 @@ class Speaker(context: Context) {
         engine?.speak(text, TextToSpeech.QUEUE_FLUSH, null, "wortart-utterance")
     }
 
+    fun stop() {
+        try {
+            engine?.stop()
+        } catch (e: Exception) {
+            // ignore
+        }
+    }
+
     fun shutdown() {
         try {
             engine?.stop()
