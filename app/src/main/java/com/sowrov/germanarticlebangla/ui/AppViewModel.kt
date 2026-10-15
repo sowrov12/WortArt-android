@@ -94,6 +94,9 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
      */
     var catalogReady by mutableStateOf(repository.hasCache())
         private set
+    /** Set when the menu sends the user to the "German cases" table in Rules. */
+    var casesTarget by mutableStateOf(false)
+        private set
     var tab by mutableStateOf(Tab.Practice)
         private set
     var selectedDeck by mutableStateOf("all")
@@ -162,7 +165,19 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
         tab = Tab.Premium
     }
 
+    fun openCases() {
+        ruleTarget = null
+        exploreSection = ExploreSection.Rules
+        casesTarget = true
+        tab = Tab.Explore
+    }
+
+    fun consumeCasesTarget() {
+        casesTarget = false
+    }
+
     fun openExplore(section: ExploreSection) {
+        casesTarget = false
         ruleTarget = null
         exploreSection = section
         tab = Tab.Explore
@@ -240,6 +255,10 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
     fun recordAnswer(isCorrect: Boolean, elapsedMs: Long) = progressStore.recordAnswer(isCorrect, elapsedMs)
 
     fun toggleFavorite(id: String) = progressStore.toggleFavorite(id)
+
+    fun recordPronunciation(perfect: Boolean) = progressStore.recordPronunciation(perfect)
+
+    fun stopSpeaking() = speaker.stop()
 
     /** Favorites count toward the same free daily limit everywhere. */
     fun toggleFavoriteLimited(id: String) {
