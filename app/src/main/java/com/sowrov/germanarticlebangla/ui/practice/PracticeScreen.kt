@@ -1,5 +1,9 @@
 package com.sowrov.germanarticlebangla.ui.practice
 
+import android.Manifest
+import android.content.pm.PackageManager
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
@@ -25,6 +29,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ButtonDefaults
@@ -32,6 +37,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -61,6 +67,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.imageLoader
 import coil.request.ImageRequest
@@ -210,6 +217,29 @@ fun PracticeScreen(vm: AppViewModel, onToggleReminders: (Boolean) -> Unit) {
         }
     }
 
+    var showVoice by remember { mutableStateOf(false) }
+    var micDenied by remember { mutableStateOf(false) }
+    val micPermission = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
+        if (granted) {
+            vm.stopSpeaking()
+            showVoice = true
+        } else {
+            micDenied = true
+        }
+    }
+
+    fun openVoice() {
+        if (current == null || answer != null) return
+        val allowed = ContextCompat.checkSelfPermission(context, Manifest.permission.RECORD_AUDIO) ==
+            PackageManager.PERMISSION_GRANTED
+        if (allowed) {
+            vm.stopSpeaking()
+            showVoice = true
+        } else {
+            micPermission.launch(Manifest.permission.RECORD_AUDIO)
+        }
+    }
+
     fun handleAnswer(picked: Article) {
         val w = current ?: return
         if (answer != null) return
@@ -218,6 +248,21 @@ fun PracticeScreen(vm: AppViewModel, onToggleReminders: (Boolean) -> Unit) {
         SoundFx.play(correct)
         vm.recordAnswer(correct, System.currentTimeMillis() - shownAt)
         answer = AnswerState(picked, correct)
+    }
+
+    // A recognized attempt counts in the pronunciation stats. A perfect one is a correct answer for the card.
+    fun handleVoiceResult(w: Word, perfect: Boolean) {
+        vm.recordPronunciation(perfect)
+        if (!perfect) {
+            SoundFx.play(false)
+            return
+        }
+        if (answer != null) return
+        showVoice = false
+        if (!vm.tryUse(DailyCounter.CARDS_PRACTICED)) return
+        SoundFx.play(true)
+        vm.recordAnswer(true, System.currentTimeMillis() - shownAt)
+        answer = AnswerState(w.articles.first(), true)
     }
 
     val stats = progress.stats
@@ -297,6 +342,7 @@ fun PracticeScreen(vm: AppViewModel, onToggleReminders: (Boolean) -> Unit) {
                             vm.speak(if (answer != null) "${w.articles.joinToString(" oder ") { it.name }} ${w.word}" else w.word)
                         }
                     },
+                    onMic = { openVoice() },
                     onOpenRule = {
                         val w = current
                         if (w != null && vm.tryUse(DailyCounter.RULES_OPENED)) {
@@ -327,6 +373,31 @@ fun PracticeScreen(vm: AppViewModel, onToggleReminders: (Boolean) -> Unit) {
                     onPick = { handleAnswer(it) },
                 )
             }
+        }
+
+        val voiceWord = current
+        if (showVoice && voiceWord != null && answer == null) {
+            PronunciationDialog(
+                word = voiceWord,
+                onResult = { perfect -> handleVoiceResult(voiceWord, perfect) },
+                onDismiss = { showVoice = false },
+            )
+        }
+        if (micDenied) {
+            AlertDialog(
+                onDismissRequest = { micDenied = false },
+                containerColor = c.card,
+                title = { Text("Microphone needed", color = c.foreground) },
+                text = {
+                    Text(
+                        "Allow microphone access for this app in your phone settings to practice pronunciation.",
+                        color = c.mutedForeground,
+                    )
+                },
+                confirmButton = {
+                    TextButton(onClick = { micDenied = false }) { Text("OK", color = c.primary) }
+                },
+            )
         }
     }
 }
@@ -449,6 +520,7 @@ fun WordCard(
     onToggleFavorite: () -> Unit,
     onSpeak: () -> Unit,
     onOpenRule: () -> Unit,
+    onMic: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     CompositionLocalProvider(LocalWortColors provides DarkColors) {
@@ -519,7 +591,7 @@ fun WordCard(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(horizontal = 24.dp)
-                    .padding(top = 64.dp, bottom = 20.dp),
+                    .padding(top = 64.dp, bottom = 104.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(18.dp, Alignment.CenterVertically),
             ) {
@@ -622,6 +694,21 @@ fun WordCard(
                             }
                         }
                     }
+                }
+            }
+
+            if (answer == null) {
+                Box(
+                    modifier = Modifier
+                        .align(Alignment.BottomCenter)
+                        .padding(bottom = 22.dp)
+                        .size(64.dp)
+                        .clip(CircleShape)
+                        .background(c.primary)
+                        .clickable(onClick = onMic),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Icon(AppIcons.Mic, contentDescription = "Say the word", tint = c.primaryForeground, modifier = Modifier.size(30.dp))
                 }
             }
 
@@ -765,7 +852,7 @@ private fun PracticeHeader(
                             vm.setReadAloud(it, currentWord)
                         }
                         MenuRow(AppIcons.Skip, "Skip word", { onSkip(); menuOpen = false }, enabled = canSkip)
-                        MenuRow(AppIcons.Grid, "Categories", { page = MenuPage.Decks })
+                        MenuRow(AppIcons.Grid, "German cases", { menuOpen = false; vm.openCases() })
                         MenuRow(AppIcons.Book, "Grammar rules", { menuOpen = false; vm.openExplore(ExploreSection.Rules) })
                         MenuRow(AppIcons.Search, "Search words", { menuOpen = false; vm.openExplore(ExploreSection.Search) })
                         MenuRow(AppIcons.Chart, "Statistics", { menuOpen = false; vm.openStats() })
