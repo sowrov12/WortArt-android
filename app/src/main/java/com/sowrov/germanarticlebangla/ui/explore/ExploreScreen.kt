@@ -78,6 +78,8 @@ import com.sowrov.germanarticlebangla.ui.theme.WortTheme
 private sealed interface RuleRow {
     class Header(val group: RuleGroup, val open: Boolean) : RuleRow
     class Item(val rule: Rule) : RuleRow
+    class CasesHeader(val open: Boolean) : RuleRow
+    object CasesTable : RuleRow
 }
 
 @Composable
@@ -92,16 +94,19 @@ fun ExploreScreen(vm: AppViewModel) {
 
     val listState = rememberLazyListState()
     var openGroups by remember { mutableStateOf(setOf(target?.article ?: Article.der)) }
+    var casesOpen by remember { mutableStateOf(vm.casesTarget) }
     var query by remember { mutableStateOf("") }
     var searchLevel by remember { mutableStateOf(LevelFilter.ALL) }
     var editingDeckId by remember { mutableStateOf<String?>(null) }
 
-    val ruleRows = remember(openGroups) {
-        RULE_GROUPS.flatMap { group ->
+    val ruleRows = remember(openGroups, casesOpen) {
+        val groupRows = RULE_GROUPS.flatMap { group ->
             val open = openGroups.contains(group.article)
             listOf<RuleRow>(RuleRow.Header(group, open)) +
                 (if (open) group.rules.map { RuleRow.Item(it) } else emptyList())
         }
+        groupRows + listOf<RuleRow>(RuleRow.CasesHeader(casesOpen)) +
+            (if (casesOpen) listOf<RuleRow>(RuleRow.CasesTable) else emptyList())
     }
     val latestRows by rememberUpdatedState(ruleRows)
 
@@ -114,9 +119,20 @@ fun ExploreScreen(vm: AppViewModel) {
             when (row) {
                 is RuleRow.Item -> t.ruleId != null && row.rule.id == t.ruleId
                 is RuleRow.Header -> t.ruleId == null && row.group.article == t.article
+                else -> false
             }
         }
         if (index >= 0) listState.animateScrollToItem(2 + index)
+    }
+
+    // Sent here from the menu: open the "German cases" table and scroll to it.
+    LaunchedEffect(vm.casesTarget) {
+        if (!vm.casesTarget) return@LaunchedEffect
+        casesOpen = true
+        kotlinx.coroutines.delay(250)
+        val index = latestRows.indexOfFirst { it is RuleRow.CasesHeader }
+        if (index >= 0) listState.animateScrollToItem(2 + index)
+        vm.consumeCasesTarget()
     }
 
     LazyColumn(
@@ -175,6 +191,8 @@ fun ExploreScreen(vm: AppViewModel) {
                 rows = ruleRows,
                 targetRuleId = target?.ruleId,
                 targetPattern = target?.pattern,
+                casesOpen = casesOpen,
+                onToggleCases = { casesOpen = !casesOpen },
                 onToggleGroup = { article ->
                     openGroups = if (openGroups.contains(article)) openGroups - article else openGroups + article
                 },
@@ -521,15 +539,42 @@ private fun LazyListScope.rulesSection(
     rows: List<RuleRow>,
     targetRuleId: String?,
     targetPattern: String?,
+    casesOpen: Boolean,
+    onToggleCases: () -> Unit,
     onToggleGroup: (Article) -> Unit,
 ) {
     items(rows, key = { row ->
         when (row) {
             is RuleRow.Header -> "group-${row.group.article.name}"
             is RuleRow.Item -> "rule-${row.rule.id}"
+            is RuleRow.CasesHeader -> "cases-header"
+            is RuleRow.CasesTable -> "cases-table"
         }
     }) { row ->
         when (row) {
+            is RuleRow.CasesHeader -> {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(20.dp))
+                        .background(c.card)
+                        .clickable { onToggleCases() }
+                        .padding(14.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                ) {
+                    Box(Modifier.size(10.dp).clip(CircleShape).background(c.primary))
+                    Column(Modifier.weight(1f)) {
+                        Text("German cases", color = c.primary, fontFamily = SerifFont, fontSize = 18.sp, fontWeight = FontWeight.SemiBold)
+                        Text("Nominativ, Akkusativ and Dativ: the article table.", color = c.mutedForeground, fontSize = 12.sp)
+                    }
+                    Icon(
+                        if (row.open) AppIcons.ChevronDown else AppIcons.ChevronRight,
+                        null, tint = c.mutedForeground, modifier = Modifier.size(20.dp),
+                    )
+                }
+            }
+            is RuleRow.CasesTable -> CasesTable()
             is RuleRow.Header -> {
                 val color = c.article(row.group.article)
                 Row(
