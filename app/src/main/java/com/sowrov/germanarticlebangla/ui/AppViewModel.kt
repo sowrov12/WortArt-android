@@ -50,6 +50,11 @@ enum class Tab { Practice, Explore, Stats, Premium }
 
 enum class ExploreSection { Categories, Rules, Search }
 
+/** How the search text is matched: anywhere, or only at the end / start of the German word. */
+enum class SearchMode { Contains, EndsWith, StartsWith }
+
+class SearchPreset(val text: String, val mode: SearchMode)
+
 /** Premium status plus the categories a free user cannot open. */
 data class Access(val isPremium: Boolean, val lockedIds: Set<String>)
 
@@ -94,6 +99,10 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
      */
     var catalogReady by mutableStateOf(repository.hasCache())
         private set
+    /** Set when a grammar-rule ending is tapped: Search opens with that ending filled in. */
+    var searchPreset by mutableStateOf<SearchPreset?>(null)
+        private set
+
     /** Set when the menu sends the user to the "German cases" table in Rules. */
     var casesTarget by mutableStateOf(false)
         private set
@@ -163,6 +172,18 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
 
     fun openPremiumTab() {
         tab = Tab.Premium
+    }
+
+    fun openSearchPreset(text: String, mode: SearchMode) {
+        ruleTarget = null
+        casesTarget = false
+        searchPreset = SearchPreset(text, mode)
+        exploreSection = ExploreSection.Search
+        tab = Tab.Explore
+    }
+
+    fun consumeSearchPreset() {
+        searchPreset = null
     }
 
     fun openCases() {

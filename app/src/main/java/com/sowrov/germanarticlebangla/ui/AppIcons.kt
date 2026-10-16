@@ -40,6 +40,7 @@ import androidx.compose.material.icons.filled.Lightbulb
 import androidx.compose.material.icons.filled.LocalFireDepartment
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Mic
+import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.PhoneAndroid
@@ -87,6 +88,7 @@ object AppIcons {
     val Logout: ImageVector = Icons.AutoMirrored.Filled.Logout
     val Moon: ImageVector = Icons.Filled.DarkMode
     val Mic: ImageVector = Icons.Filled.Mic
+    val Info: ImageVector = Icons.Outlined.Info
     val More: ImageVector = Icons.Filled.MoreVert
     val Phone: ImageVector = Icons.Filled.PhoneAndroid
     val Person: ImageVector = Icons.Filled.Person
