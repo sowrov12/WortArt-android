@@ -129,7 +129,7 @@ fun StatsScreen(vm: AppViewModel) {
             StatTile(AppIcons.Target, "Success rate", "$rate%", Modifier.weight(1f))
         }
         Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            StatTile(AppIcons.Flame, "Current run", stats.currentRun.toString(), Modifier.weight(1f))
+            StatTile(AppIcons.Check, "Current run", stats.currentRun.toString(), Modifier.weight(1f))
             StatTile(AppIcons.Trophy, "Best run", thisWeek.bestRun.toString(), Modifier.weight(1f))
         }
         Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -138,7 +138,7 @@ fun StatsScreen(vm: AppViewModel) {
         }
         Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
             StatTile(AppIcons.Mic, "Perfect Pronunciation", thisWeek.pronPerfect.toString(), Modifier.weight(1f))
-            Box(Modifier.weight(1f))
+            StatTile(AppIcons.Flame, "Day streak", streak.toString(), Modifier.weight(1f))
         }
 
         OutlinedButton(
