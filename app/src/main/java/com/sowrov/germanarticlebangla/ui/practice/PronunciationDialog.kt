@@ -69,12 +69,19 @@ private fun describeError(error: Int): String = when (error) {
  * attempt (Try again); the X button is always there.
  */
 @Composable
-fun PronunciationDialog(word: Word, onResult: (Boolean) -> Unit, onDismiss: () -> Unit) {
+fun PronunciationDialog(
+    word: Word,
+    onResult: (Boolean) -> Unit,
+    canListen: () -> Boolean,
+    onDismiss: () -> Unit,
+) {
     val c = WortTheme.colors
     val context = LocalContext.current
     var status by remember { mutableStateOf(VoiceStatus.Starting) }
     var heard by remember { mutableStateOf("") }
     var problem by remember { mutableStateOf("") }
+    // One recognized result per attempt: a repeated callback must never trigger a second chime.
+    var delivered by remember { mutableStateOf(false) }
     val shake = remember { Animatable(0f) }
     val density = LocalDensity.current.density
     val latestOnResult by rememberUpdatedState(onResult)
@@ -104,6 +111,8 @@ fun PronunciationDialog(word: Word, onResult: (Boolean) -> Unit, onDismiss: () -
             }
 
             override fun onResults(results: Bundle?) {
+                if (delivered) return
+                delivered = true
                 val list: List<String> = results?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION) ?: emptyList()
                 heard = list.firstOrNull().orEmpty()
                 val perfect = list.any { matchesSpoken(it, word) }
@@ -122,6 +131,11 @@ fun PronunciationDialog(word: Word, onResult: (Boolean) -> Unit, onDismiss: () -
     }
 
     fun startListening() {
+        // Free daily limit: when it is used up the limit message is shown and the popup closes.
+        if (!canListen()) {
+            onDismiss()
+            return
+        }
         val r = recognizer
         if (r == null) {
             problem = "Speech recognition isn't available on this phone."
@@ -129,6 +143,7 @@ fun PronunciationDialog(word: Word, onResult: (Boolean) -> Unit, onDismiss: () -
             return
         }
         heard = ""
+        delivered = false
         status = VoiceStatus.Starting
         val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
             putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)

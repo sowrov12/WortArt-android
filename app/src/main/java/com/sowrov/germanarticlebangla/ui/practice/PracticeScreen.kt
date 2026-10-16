@@ -25,6 +25,7 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -99,6 +100,7 @@ import com.sowrov.germanarticlebangla.ui.AppViewModel
 import com.sowrov.germanarticlebangla.ui.ExploreSection
 import com.sowrov.germanarticlebangla.ui.IconTile
 import com.sowrov.germanarticlebangla.ui.MenuRow
+import com.sowrov.germanarticlebangla.ui.PluralDialog
 import com.sowrov.germanarticlebangla.ui.RemoteImage
 import com.sowrov.germanarticlebangla.ui.RollingNumber
 import com.sowrov.germanarticlebangla.ui.RoundIconButton
@@ -218,6 +220,8 @@ fun PracticeScreen(vm: AppViewModel, onToggleReminders: (Boolean) -> Unit) {
     }
 
     var showVoice by remember { mutableStateOf(false) }
+    var showPlural by remember { mutableStateOf(false) }
+    LaunchedEffect(current?.id) { showPlural = false }
     var micDenied by remember { mutableStateOf(false) }
     val micPermission = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
         if (granted) {
@@ -343,6 +347,7 @@ fun PracticeScreen(vm: AppViewModel, onToggleReminders: (Boolean) -> Unit) {
                         }
                     },
                     onMic = { openVoice() },
+                    onInfo = { showPlural = true },
                     onOpenRule = {
                         val w = current
                         if (w != null && vm.tryUse(DailyCounter.RULES_OPENED)) {
@@ -380,8 +385,12 @@ fun PracticeScreen(vm: AppViewModel, onToggleReminders: (Boolean) -> Unit) {
             PronunciationDialog(
                 word = voiceWord,
                 onResult = { perfect -> handleVoiceResult(voiceWord, perfect) },
+                canListen = { vm.tryUse(DailyCounter.VOICE_PRACTICED) },
                 onDismiss = { showVoice = false },
             )
+        }
+        if (showPlural && voiceWord != null) {
+            PluralDialog(voiceWord) { showPlural = false }
         }
         if (micDenied) {
             AlertDialog(
@@ -521,6 +530,7 @@ fun WordCard(
     onSpeak: () -> Unit,
     onOpenRule: () -> Unit,
     onMic: () -> Unit,
+    onInfo: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     CompositionLocalProvider(LocalWortColors provides DarkColors) {
@@ -718,10 +728,21 @@ fun WordCard(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 RoundIconButton(AppIcons.Volume, "Hear pronunciation of ${word.word}", c.foreground, c.secondary, onSpeak)
-                Text(
-                    word.level, color = c.mutedForeground, fontSize = 11.sp, fontWeight = FontWeight.Bold,
-                    modifier = Modifier.clip(CircleShape).background(c.secondary).padding(horizontal = 10.dp, vertical = 4.dp),
-                )
+                Row(
+                    modifier = Modifier.clip(CircleShape).background(c.secondary).padding(start = 12.dp, end = 4.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Text(
+                        word.level, color = c.mutedForeground, fontSize = 11.sp, fontWeight = FontWeight.Bold,
+                        modifier = Modifier.padding(vertical = 6.dp),
+                    )
+                    Box(
+                        modifier = Modifier.size(30.dp).clip(CircleShape).clickable(onClick = onInfo),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Icon(AppIcons.Info, contentDescription = "Plural form", tint = c.mutedForeground, modifier = Modifier.size(17.dp))
+                    }
+                }
                 RoundIconButton(
                     if (isFavorite) AppIcons.Favorite else AppIcons.FavoriteOutline,
                     if (isFavorite) "Remove from favorites" else "Add to favorites",
@@ -735,6 +756,41 @@ fun WordCard(
 // ---------------------------------------------------------------------------------------------
 // Header + menu
 // ---------------------------------------------------------------------------------------------
+
+/** Before the daily goal: a progress bar. After 10 cards: a full "DAY n" streak pill. */
+@Composable
+private fun StreakPill(goalDone: Boolean, streak: Int, fill: Float, modifier: Modifier, onClick: () -> Unit) {
+    val c = WortTheme.colors
+    val animatedFill by animateFloatAsState(fill, label = "goal-fill")
+    if (goalDone) {
+        Box(
+            modifier = modifier
+                .height(44.dp)
+                .clip(CircleShape)
+                .background(Brush.horizontalGradient(listOf(Color(0xFFF4A34B), Color(0xFFEA6A4A))))
+                .clickable(onClick = onClick),
+            contentAlignment = Alignment.Center,
+        ) {
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                Icon(AppIcons.Flame, contentDescription = null, tint = Color.White, modifier = Modifier.size(20.dp))
+                Text("DAY $streak", color = Color.White, fontSize = 16.sp, fontWeight = FontWeight.Bold)
+            }
+        }
+    } else {
+        Box(
+            modifier = modifier
+                .height(44.dp)
+                .clip(CircleShape)
+                .background(c.card)
+                .clickable(onClick = onClick)
+                .padding(horizontal = 14.dp),
+            contentAlignment = Alignment.CenterStart,
+        ) {
+            Box(Modifier.fillMaxWidth().height(14.dp).clip(CircleShape).background(c.secondary))
+            Box(Modifier.fillMaxWidth(animatedFill).height(14.dp).clip(CircleShape).background(c.primary))
+        }
+    }
+}
 
 private enum class MenuPage { Main, Level, Decks, Theme }
 
@@ -767,66 +823,50 @@ private fun PracticeHeader(
     val titleIcon = if (customDeck != null) AppIcons.Layers else AppIcons.forCategory(category.id)
     val goalDone = dailyCount >= DAILY_GOAL
     val fill = (dailyCount.toFloat() / DAILY_GOAL).coerceIn(0f, 1f)
-    val active = streak > 0 || dailyCount > 0
 
     Row(
         modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceBetween,
+        horizontalArrangement = Arrangement.spacedBy(6.dp),
     ) {
         Row(
-            modifier = Modifier.weight(1f, fill = false),
+            modifier = Modifier
+                .widthIn(max = 140.dp)
+                .clip(CircleShape)
+                .background(c.card)
+                .clickable { vm.openExplore(ExploreSection.Categories) }
+                .padding(start = 6.dp, top = 6.dp, bottom = 6.dp, end = 12.dp),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(6.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
         ) {
-            Row(
-                modifier = Modifier
-                    .weight(1f, fill = false)
-                    .clip(CircleShape)
-                    .background(c.card)
-                    .clickable { vm.openExplore(ExploreSection.Categories) }
-                    .padding(start = 6.dp, top = 6.dp, bottom = 6.dp, end = 12.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-            ) {
-                IconTile(titleIcon, c.primary, size = 28, round = true)
-                Text(title, color = c.foreground, fontSize = 14.sp, fontWeight = FontWeight.Medium, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f, fill = false))
-                Icon(AppIcons.ChevronDown, null, tint = c.mutedForeground, modifier = Modifier.size(16.dp))
-            }
-            Text(
-                levelPillText(settings.levels), color = c.primary, fontSize = 12.sp, fontWeight = FontWeight.Bold,
-                modifier = Modifier.clip(CircleShape).background(c.card).padding(horizontal = 10.dp, vertical = 7.dp),
-            )
+            IconTile(titleIcon, c.primary, size = 28, round = true)
+            Text(title, color = c.foreground, fontSize = 14.sp, fontWeight = FontWeight.Medium, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f, fill = false))
+            Icon(AppIcons.ChevronDown, null, tint = c.mutedForeground, modifier = Modifier.size(16.dp))
         }
-
-        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-            // Daily goal pill: fills as you answer cards; the streak grows when it is full.
-            Box(Modifier.clip(CircleShape).background(c.card)) {
-                Box(Modifier.matchParentSize()) {
-                    Box(Modifier.fillMaxHeight().fillMaxWidth(fill).background(c.primary.copy(alpha = 0.3f)))
-                }
-                Row(
-                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(6.dp),
-                ) {
-                    Icon(
-                        AppIcons.Flame, null,
-                        tint = if (active) c.primary else c.mutedForeground,
-                        modifier = Modifier.size(if (goalDone) 18.dp else 16.dp),
-                    )
-                    RollingNumber(streak, if (active) c.primary else c.mutedForeground, 14.sp)
-                }
-            }
-            Image(
-                painter = painterResource(R.drawable.ic_settings_tile),
-                contentDescription = "Menu",
-                modifier = Modifier
-                    .size(40.dp)
-                    .clip(RoundedCornerShape(12.dp))
-                    .clickable { page = MenuPage.Main; menuOpen = true },
-            )
-        }
+        // Tapping the level opens the level choices.
+        Text(
+            levelPillText(settings.levels), color = c.primary, fontSize = 12.sp, fontWeight = FontWeight.Bold,
+            modifier = Modifier
+                .clip(CircleShape)
+                .background(c.card)
+                .clickable { page = MenuPage.Level; menuOpen = true }
+                .padding(horizontal = 10.dp, vertical = 7.dp),
+        )
+        StreakPill(
+            goalDone = goalDone,
+            streak = streak,
+            fill = fill,
+            modifier = Modifier.weight(1f),
+            onClick = { vm.openStats() },
+        )
+        Image(
+            painter = painterResource(R.drawable.ic_settings_tile),
+            contentDescription = "Menu",
+            modifier = Modifier
+                .size(40.dp)
+                .clip(RoundedCornerShape(12.dp))
+                .clickable { page = MenuPage.Main; menuOpen = true },
+        )
     }
 
     if (menuOpen) {
