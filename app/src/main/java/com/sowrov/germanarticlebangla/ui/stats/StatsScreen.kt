@@ -32,6 +32,9 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.foundation.BorderStroke
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.sowrov.germanarticlebangla.data.DAILY_GOAL
+import com.sowrov.germanarticlebangla.data.WeekStats
+import com.sowrov.germanarticlebangla.data.germanScore
+import com.sowrov.germanarticlebangla.data.weekKey
 import com.sowrov.germanarticlebangla.data.getActiveStreak
 import com.sowrov.germanarticlebangla.data.getTodayUsage
 import com.sowrov.germanarticlebangla.ui.AppIcons
@@ -58,7 +61,13 @@ fun StatsScreen(vm: AppViewModel) {
     val progress by vm.progress.collectAsStateWithLifecycle()
     var confirmReset by remember { mutableStateOf(false) }
     val stats = progress.stats
-    val rate = if (stats.cardsPlayed > 0) Math.round(stats.correct * 100f / stats.cardsPlayed) else 0
+    val thisWeek = progress.weeks[weekKey()] ?: WeekStats()
+    val lastWeek = progress.weeks[weekKey(1)]
+    val weekBefore = progress.weeks[weekKey(2)]
+    val score = germanScore(thisWeek)
+    val lastScore = if (lastWeek != null) germanScore(lastWeek) else null
+    val delta = if (lastWeek != null && weekBefore != null) germanScore(lastWeek) - germanScore(weekBefore) else null
+    val rate = if (thisWeek.cards > 0) Math.round(thisWeek.correct * 100f / thisWeek.cards) else 0
     val streak = getActiveStreak(stats)
     val today = getTodayUsage(progress).cardsPracticed
     val goalFraction = (today.toFloat() / DAILY_GOAL).coerceIn(0f, 1f)
@@ -75,41 +84,61 @@ fun StatsScreen(vm: AppViewModel) {
             Text("Your progress on this device.", color = c.mutedForeground, fontSize = 14.sp)
         }
 
+        // German Score: this week's score out of 100, with last week's report underneath.
         Column(
             modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(24.dp)).background(c.card).padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(10.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                IconTile(AppIcons.Flame, c.primary, size = 48, round = true)
+                IconTile(AppIcons.Trophy, c.primary, size = 48, round = true)
                 Column(Modifier.weight(1f)) {
-                    Text("$streak day streak", color = c.foreground, fontFamily = SerifFont, fontSize = 20.sp, fontWeight = FontWeight.SemiBold)
-                    Text("Answer $DAILY_GOAL cards a day to keep it going.", color = c.mutedForeground, fontSize = 12.sp)
+                    Text("German Score", color = c.foreground, fontFamily = SerifFont, fontSize = 20.sp, fontWeight = FontWeight.SemiBold)
+                    Row(verticalAlignment = Alignment.Bottom) {
+                        Text("$score", color = c.primary, fontSize = 40.sp, fontWeight = FontWeight.Bold)
+                        Text(" / 100", color = c.mutedForeground, fontSize = 14.sp, modifier = Modifier.padding(bottom = 8.dp))
+                    }
                 }
             }
-            Box(Modifier.fillMaxWidth().height(8.dp).clip(CircleShape).background(c.secondary)) {
-                Box(Modifier.fillMaxWidth(goalFraction).height(8.dp).clip(CircleShape).background(c.primary))
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                Text("Last week report", color = c.mutedForeground, fontSize = 11.sp)
+                if (lastScore != null) {
+                    Text("$lastScore", color = c.foreground, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                    if (delta != null) {
+                        val arrow = when {
+                            delta > 0 -> "↑ $delta"
+                            delta < 0 -> "↓ ${-delta}"
+                            else -> "– 0"
+                        }
+                        val tint = when {
+                            delta > 0 -> c.success
+                            delta < 0 -> c.destructive
+                            else -> c.mutedForeground
+                        }
+                        Text(arrow, color = tint, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                    }
+                } else {
+                    Text("—", color = c.mutedForeground, fontSize = 12.sp)
+                }
             }
-            Text(
-                "Today: ${minOf(today, DAILY_GOAL)} / $DAILY_GOAL cards",
-                color = c.mutedForeground, fontSize = 12.sp,
-            )
         }
 
+        Text("This week", color = c.mutedForeground, fontSize = 12.sp, fontWeight = FontWeight.Medium, modifier = Modifier.padding(start = 4.dp))
+
         Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            StatTile(AppIcons.Layers, "Cards played", stats.cardsPlayed.toString(), Modifier.weight(1f))
+            StatTile(AppIcons.Layers, "Cards played", thisWeek.cards.toString(), Modifier.weight(1f))
             StatTile(AppIcons.Target, "Success rate", "$rate%", Modifier.weight(1f))
         }
         Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
             StatTile(AppIcons.Flame, "Current run", stats.currentRun.toString(), Modifier.weight(1f))
-            StatTile(AppIcons.Trophy, "Best run", stats.bestRun.toString(), Modifier.weight(1f))
+            StatTile(AppIcons.Trophy, "Best run", thisWeek.bestRun.toString(), Modifier.weight(1f))
         }
         Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            StatTile(AppIcons.Clock, "Time practiced", formatTime(stats.timeSpentMs), Modifier.weight(1f))
+            StatTile(AppIcons.Clock, "Time practiced", formatTime(thisWeek.timeMs), Modifier.weight(1f))
             StatTile(AppIcons.Favorite, "Favorites", progress.favorites.size.toString(), Modifier.weight(1f))
         }
         Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            StatTile(AppIcons.Mic, "Total Pronunciation", stats.pronTotal.toString(), Modifier.weight(1f))
-            StatTile(AppIcons.Check, "Perfect Pronunciation", stats.pronPerfect.toString(), Modifier.weight(1f))
+            StatTile(AppIcons.Mic, "Perfect Pronunciation", thisWeek.pronPerfect.toString(), Modifier.weight(1f))
+            Box(Modifier.weight(1f))
         }
 
         OutlinedButton(
