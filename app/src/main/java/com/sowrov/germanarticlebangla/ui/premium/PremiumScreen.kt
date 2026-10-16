@@ -175,6 +175,7 @@ fun PremiumScreen(vm: AppViewModel) {
             Benefit("Unlimited daily practice")
             Benefit("Unlimited favorites")
             Benefit("Unlimited grammar rule look-ups")
+            Benefit("Unlimited pronunciation practice")
             Benefit(if (play) "All member categories" else "All Premium categories")
             Benefit("Unlimited multi-category decks")
         }
