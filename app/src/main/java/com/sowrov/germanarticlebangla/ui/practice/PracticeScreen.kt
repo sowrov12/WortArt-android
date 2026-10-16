@@ -767,13 +767,13 @@ private fun StreakPill(goalDone: Boolean, streak: Int, fill: Float, modifier: Mo
             modifier = modifier
                 .height(44.dp)
                 .clip(CircleShape)
-                .background(Brush.horizontalGradient(listOf(Color(0xFFF4A34B), Color(0xFFEA6A4A))))
+                .background(Color(0xFFF4A34B))
                 .clickable(onClick = onClick),
             contentAlignment = Alignment.Center,
         ) {
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                Icon(AppIcons.Flame, contentDescription = null, tint = Color.White, modifier = Modifier.size(20.dp))
-                Text("DAY $streak", color = Color.White, fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                Icon(AppIcons.Flame, contentDescription = null, tint = Color(0xFF1D140D), modifier = Modifier.size(20.dp))
+                Text("DAY $streak", color = Color(0xFF1D140D), fontSize = 16.sp, fontWeight = FontWeight.Bold)
             }
         }
     } else {
