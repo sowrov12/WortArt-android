@@ -70,6 +70,8 @@ import com.sowrov.germanarticlebangla.ui.AppIcons
 import com.sowrov.germanarticlebangla.ui.AppViewModel
 import com.sowrov.germanarticlebangla.ui.ExploreSection
 import com.sowrov.germanarticlebangla.ui.IconTile
+import com.sowrov.germanarticlebangla.ui.PluralDialog
+import com.sowrov.germanarticlebangla.ui.SearchMode
 import com.sowrov.germanarticlebangla.ui.RemoteImage
 import com.sowrov.germanarticlebangla.ui.theme.SerifFont
 import com.sowrov.germanarticlebangla.ui.theme.WortColors
@@ -96,6 +98,8 @@ fun ExploreScreen(vm: AppViewModel) {
     var openGroups by remember { mutableStateOf(setOf(target?.article ?: Article.der)) }
     var casesOpen by remember { mutableStateOf(vm.casesTarget) }
     var query by remember { mutableStateOf("") }
+    var searchMode by remember { mutableStateOf(SearchMode.Contains) }
+    var infoWord by remember { mutableStateOf<Word?>(null) }
     var searchLevel by remember { mutableStateOf(LevelFilter.ALL) }
     var editingDeckId by remember { mutableStateOf<String?>(null) }
 
@@ -123,6 +127,15 @@ fun ExploreScreen(vm: AppViewModel) {
             }
         }
         if (index >= 0) listState.animateScrollToItem(2 + index)
+    }
+
+    // A grammar-rule ending was tapped: show the Search tab with that ending filled in.
+    LaunchedEffect(vm.searchPreset) {
+        val preset = vm.searchPreset ?: return@LaunchedEffect
+        query = preset.text
+        searchMode = preset.mode
+        searchLevel = LevelFilter.ALL
+        vm.consumeSearchPreset()
     }
 
     // Sent here from the menu: open the "German cases" table and scroll to it.
@@ -193,6 +206,7 @@ fun ExploreScreen(vm: AppViewModel) {
                 targetPattern = target?.pattern,
                 casesOpen = casesOpen,
                 onToggleCases = { casesOpen = !casesOpen },
+                onPattern = { text, mode -> vm.openSearchPreset(text, mode) },
                 onToggleGroup = { article ->
                     openGroups = if (openGroups.contains(article)) openGroups - article else openGroups + article
                 },
@@ -203,7 +217,10 @@ fun ExploreScreen(vm: AppViewModel) {
                 lockedIds = access.lockedIds,
                 favorites = progress.favorites,
                 query = query,
-                onQueryChange = { query = it },
+                onQueryChange = { query = it; searchMode = SearchMode.Contains },
+                mode = searchMode,
+                onSpeak = { vm.speak(it) },
+                onInfo = { infoWord = it },
                 level = searchLevel,
                 onLevelChange = { searchLevel = it },
                 getCategory = { catalog.getCategory(it) },
@@ -211,6 +228,8 @@ fun ExploreScreen(vm: AppViewModel) {
             )
         }
     }
+
+    infoWord?.let { PluralDialog(it) { infoWord = null } }
 
     val editing = customDecks.firstOrNull { it.id == editingDeckId }
     if (editing != null) {
@@ -541,6 +560,7 @@ private fun LazyListScope.rulesSection(
     targetPattern: String?,
     casesOpen: Boolean,
     onToggleCases: () -> Unit,
+    onPattern: (String, SearchMode) -> Unit,
     onToggleGroup: (Article) -> Unit,
 ) {
     items(rows, key = { row ->
@@ -637,16 +657,23 @@ private fun LazyListScope.rulesSection(
                     if (patterns != null) {
                         for (pattern in patterns) {
                             val hit = isTarget && targetPattern == pattern.label
+                            val searchFor = patternSearch(pattern.label)
                             Row(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .clip(RoundedCornerShape(12.dp))
                                     .background(if (hit) c.primary.copy(alpha = 0.18f) else c.secondary)
+                                    .clickable(enabled = searchFor != null) {
+                                        if (searchFor != null) onPattern(searchFor.first, searchFor.second)
+                                    }
                                     .padding(horizontal = 12.dp, vertical = 8.dp),
                                 verticalAlignment = Alignment.CenterVertically,
                             ) {
                                 Text(pattern.label, color = color, fontSize = 14.sp, fontWeight = FontWeight.SemiBold, modifier = Modifier.weight(1f))
                                 Text(pattern.example, color = c.mutedForeground, fontSize = 13.sp)
+                                if (searchFor != null) {
+                                    Icon(AppIcons.ChevronRight, null, tint = c.mutedForeground, modifier = Modifier.size(18.dp))
+                                }
                             }
                         }
                     }
@@ -672,6 +699,9 @@ private fun LazyListScope.searchSection(
     level: LevelFilter,
     onLevelChange: (LevelFilter) -> Unit,
     getCategory: (String) -> Category,
+    mode: SearchMode,
+    onSpeak: (String) -> Unit,
+    onInfo: (Word) -> Unit,
     onToggleFavorite: (String) -> Unit,
 ) {
     item(key = "search-field") {
@@ -713,6 +743,14 @@ private fun LazyListScope.searchSection(
     }
 
     val needle = query.trim().lowercase()
+    if (mode != SearchMode.Contains && needle.isNotEmpty()) {
+        item(key = "search-mode") {
+            Text(
+                if (mode == SearchMode.EndsWith) "Words ending with “-${query.trim()}”" else "Words starting with “${query.trim()}-”",
+                color = c.primary, fontSize = 13.sp, fontWeight = FontWeight.Medium,
+            )
+        }
+    }
     if (needle.isEmpty()) {
         item(key = "search-hint") {
             Text("Type a word to find its article.", color = c.mutedForeground, fontSize = 14.sp, modifier = Modifier.padding(top = 8.dp))
@@ -721,10 +759,18 @@ private fun LazyListScope.searchSection(
     }
 
     val matches = words.filter { w ->
-        !lockedIds.contains(w.category) &&
-            (level == LevelFilter.ALL || w.level == level.id) &&
-            (w.word.lowercase().contains(needle) || w.en.lowercase().contains(needle) || w.bn.lowercase().contains(needle))
+        if (lockedIds.contains(w.category)) return@filter false
+        if (level != LevelFilter.ALL && w.level != level.id) return@filter false
+        val german = w.word.lowercase()
+        when (mode) {
+            SearchMode.EndsWith -> german.endsWith(needle)
+            SearchMode.StartsWith -> german.startsWith(needle)
+            SearchMode.Contains ->
+                german.contains(needle) || w.en.lowercase().contains(needle) || w.bn.lowercase().contains(needle)
+        }
     }
+    // Ending/prefix lists from the Rules tab show everything; free typing keeps the short list.
+    val cap = if (mode == SearchMode.Contains) MAX_RESULTS else 400
     if (matches.isEmpty()) {
         item(key = "search-empty") {
             Text("No words found.", color = c.mutedForeground, fontSize = 14.sp, modifier = Modifier.padding(top = 8.dp))
@@ -732,7 +778,7 @@ private fun LazyListScope.searchSection(
         return
     }
 
-    items(matches.take(MAX_RESULTS), key = { it.id }) { w ->
+    items(matches.take(cap), key = { it.id }) { w ->
         val isFav = favorites.contains(w.id)
         val color = c.article(w.articles.first())
         Row(
@@ -752,22 +798,45 @@ private fun LazyListScope.searchSection(
                 Text("${w.en}  ·  ${w.bn}", color = c.mutedForeground, fontSize = 12.sp, maxLines = 2, overflow = TextOverflow.Ellipsis)
                 Text("${w.level} · ${getCategory(w.category).label}", color = c.mutedForeground.copy(alpha = 0.8f), fontSize = 11.sp)
             }
-            Box(
-                modifier = Modifier.size(40.dp).clip(CircleShape).background(c.secondary).clickable { onToggleFavorite(w.id) },
-                contentAlignment = Alignment.Center,
-            ) {
-                Icon(
+            Row(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalAlignment = Alignment.CenterVertically) {
+                SmallAction(AppIcons.Volume, "Hear ${w.word}", c.foreground) {
+                    onSpeak(w.articles.joinToString(" oder ") { it.name } + " " + w.word)
+                }
+                SmallAction(AppIcons.Info, "Plural form", c.mutedForeground) { onInfo(w) }
+                SmallAction(
                     if (isFav) AppIcons.Favorite else AppIcons.FavoriteOutline,
                     if (isFav) "Remove from favorites" else "Add to favorites",
-                    tint = if (isFav) c.die else c.mutedForeground,
-                    modifier = Modifier.size(20.dp),
-                )
+                    if (isFav) c.die else c.mutedForeground,
+                ) { onToggleFavorite(w.id) }
             }
         }
     }
-    if (matches.size > MAX_RESULTS) {
+    if (matches.size > cap) {
         item(key = "search-more") {
-            Text("Showing the first $MAX_RESULTS results — refine your search.", color = c.mutedForeground, fontSize = 12.sp)
+            Text("Showing the first $cap results — refine your search.", color = c.mutedForeground, fontSize = 12.sp)
         }
     }
+}
+
+@Composable
+private fun SmallAction(
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    description: String,
+    tint: Color,
+    onClick: () -> Unit,
+) {
+    val c = WortTheme.colors
+    Box(
+        modifier = Modifier.size(36.dp).clip(CircleShape).background(c.secondary).clickable(onClick = onClick),
+        contentAlignment = Alignment.Center,
+    ) {
+        Icon(icon, contentDescription = description, tint = tint, modifier = Modifier.size(18.dp))
+    }
+}
+
+/** "-ismus" style endings search for words ending that way; "Ge- prefix" searches words starting with "Ge". */
+private fun patternSearch(label: String): Pair<String, SearchMode>? = when {
+    label.startsWith("-") -> label.removePrefix("-") to SearchMode.EndsWith
+    label.startsWith("Ge-") -> "Ge" to SearchMode.StartsWith
+    else -> null
 }
