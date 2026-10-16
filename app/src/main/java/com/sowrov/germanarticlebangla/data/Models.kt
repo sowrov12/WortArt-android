@@ -51,7 +51,19 @@ data class Word(
     val category: String,
     val categoryLabel: String,
     val level: String,
+    /** Plural columns of the sheet ("Plural Form", then its English and Bengali meaning). */
+    val pluralForm: String = "",
+    val pluralEn: String = "",
+    val pluralBn: String = "",
 )
+
+private val NO_PLURAL_MARKERS = setOf("no plural", "kein plural", "-", "—", "–", "n/a", "none")
+
+/** The sheet says this noun has no plural (e.g. "no plural"). */
+fun Word.hasNoPlural(): Boolean = NO_PLURAL_MARKERS.contains(pluralForm.trim().lowercase())
+
+/** The Plural Form cell was never filled in (for example the bundled offline list). */
+fun Word.pluralMissing(): Boolean = pluralForm.isBlank()
 
 val CATEGORY_LABELS: Map<String, String> = linkedMapOf(
     "food" to "Food & Drinks",
@@ -167,6 +179,19 @@ fun parseWordsCsv(text: String): List<Word> {
     val rows = parseCsv(text.removePrefix("\uFEFF"))
     val seen = HashSet<String>()
     val words = ArrayList<Word>()
+
+    // Plural columns are found by their header names, wherever they sit right of the side table.
+    val header = rows.firstOrNull().orEmpty()
+    fun findColumn(names: Set<String>, from: Int): Int {
+        for (i in from until header.size) {
+            if (names.contains(header[i].trim().lowercase())) return i
+        }
+        return -1
+    }
+    val pluralCol = findColumn(setOf("plural form", "plural from"), 6)
+    val pluralEnCol = if (pluralCol >= 0) findColumn(setOf("english meaning"), pluralCol + 1) else -1
+    val pluralBnCol = if (pluralCol >= 0) findColumn(setOf("bengali meaning"), pluralCol + 1) else -1
+
     for ((index, cells) in rows.withIndex()) {
         if (index == 0 && cells.getOrNull(1)?.trim()?.lowercase() == "german") continue
         val levelRaw = cells.getOrElse(0) { "" }
@@ -196,6 +221,9 @@ fun parseWordsCsv(text: String): List<Word> {
                 category = category,
                 categoryLabel = categoryRaw.trim(),
                 level = parseLevel(levelRaw),
+                pluralForm = if (pluralCol >= 0) cells.getOrElse(pluralCol) { "" }.trim() else "",
+                pluralEn = if (pluralEnCol >= 0) cells.getOrElse(pluralEnCol) { "" }.trim() else "",
+                pluralBn = if (pluralBnCol >= 0) cells.getOrElse(pluralBnCol) { "" }.trim() else "",
             )
         )
     }
@@ -243,24 +271,39 @@ val DEFAULT_CATEGORIES: List<CategoryInfo> =
     CATEGORY_LABELS.keys.map { makeInfo(it, CATEGORY_LABELS.getValue(it)) }
 
 /**
- * Side table in the Words tab: G=Category, H=Background Image, I=Icon Image, J=Access.
- * Returns null when the header in G1 is missing.
+ * Side table to the right of the words: Category, Background Image, Icon Image, Access.
+ * The columns are found by their header names in row 1, so it may sit anywhere right of column F
+ * (extra or empty columns in between are fine). Returns null when no "Category" header is found there.
  */
 fun parseCategoryTable(csv: String): List<CategoryInfo>? {
     val rows = parseCsv(csv.removePrefix("\uFEFF"))
-    if (rows.firstOrNull()?.getOrNull(6)?.trim()?.lowercase() != "category") return null
+    val header = rows.firstOrNull() ?: return null
+
+    fun findColumn(name: String, from: Int): Int {
+        for (i in from until header.size) {
+            if (header[i].trim().lowercase() == name) return i
+        }
+        return -1
+    }
+
+    // Column F (index 5) is the words' own Category column, so the side table starts after it.
+    val categoryCol = findColumn("category", 6)
+    if (categoryCol < 0) return null
+    val backgroundCol = findColumn("background image", categoryCol + 1)
+    val iconCol = findColumn("icon image", categoryCol + 1)
+    val accessCol = findColumn("access", categoryCol + 1)
 
     val byId = LinkedHashMap<String, CategoryInfo>()
     for (cells in rows.drop(1)) {
-        val label = cells.getOrNull(6)?.trim().orEmpty()
+        val label = cells.getOrNull(categoryCol)?.trim().orEmpty()
         if (label.isEmpty()) continue
         val id = categoryIdForLabel(label)
         val info = makeInfo(
             id = id,
             label = label,
-            bgImage = cells.getOrNull(7)?.trim()?.takeIf { it.isNotEmpty() },
-            iconImage = cells.getOrNull(8)?.trim()?.takeIf { it.isNotEmpty() },
-            premium = cells.getOrNull(9)?.trim()?.lowercase() == "premium",
+            bgImage = if (backgroundCol >= 0) cells.getOrNull(backgroundCol)?.trim()?.takeIf { it.isNotEmpty() } else null,
+            iconImage = if (iconCol >= 0) cells.getOrNull(iconCol)?.trim()?.takeIf { it.isNotEmpty() } else null,
+            premium = accessCol >= 0 && cells.getOrNull(accessCol)?.trim()?.lowercase() == "premium",
         )
         if (!byId.containsKey(id)) byId[id] = info
     }
