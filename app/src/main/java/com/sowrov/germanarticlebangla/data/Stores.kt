@@ -20,13 +20,14 @@ private const val MAX_TIME_PER_CARD_MS = 30_000L
 // Limits & plans
 // ---------------------------------------------------------------------------------------------
 
-enum class DailyCounter { FAVORITES_ADDED, CARDS_PRACTICED, RULES_OPENED }
+enum class DailyCounter { FAVORITES_ADDED, CARDS_PRACTICED, RULES_OPENED, VOICE_PRACTICED }
 
 /** Free-plan daily limits (guests and logged-in free users). Premium = unlimited. */
 fun freeLimit(counter: DailyCounter): Int = when (counter) {
     DailyCounter.FAVORITES_ADDED -> 10
     DailyCounter.CARDS_PRACTICED -> 500
     DailyCounter.RULES_OPENED -> 10
+    DailyCounter.VOICE_PRACTICED -> 50
 }
 
 class LimitCopy(val title: String, val body: String)
@@ -43,6 +44,10 @@ fun limitCopy(counter: DailyCounter): LimitCopy = when (counter) {
     DailyCounter.RULES_OPENED -> LimitCopy(
         "Daily rule limit reached",
         "You've reached today's free limit for rule look-ups.",
+    )
+    DailyCounter.VOICE_PRACTICED -> LimitCopy(
+        "Daily pronunciation limit reached",
+        "You've reached today's free pronunciation limit.",
     )
 }
 
@@ -99,7 +104,7 @@ data class Stats(
 
 data class Settings(
     /** Any combination of A1 / A2 / B1 (never empty). */
-    val levels: Set<String> = setOf("A1"),
+    val levels: Set<String> = LEVEL_IDS.toSet(),
     val reminders: Boolean = false,
     val readAloud: Boolean = true,
 )
@@ -110,19 +115,35 @@ data class DailyUsage(
     val favoritesAdded: Int = 0,
     val cardsPracticed: Int = 0,
     val rulesOpened: Int = 0,
+    val voicePracticed: Int = 0,
 ) {
     fun valueOf(counter: DailyCounter): Int = when (counter) {
         DailyCounter.FAVORITES_ADDED -> favoritesAdded
         DailyCounter.CARDS_PRACTICED -> cardsPracticed
         DailyCounter.RULES_OPENED -> rulesOpened
+        DailyCounter.VOICE_PRACTICED -> voicePracticed
     }
 }
+
+/** One calendar week (Monday to Sunday) of practice, kept for the German Score. */
+data class WeekStats(
+    val cards: Int = 0,
+    val correct: Int = 0,
+    val timeMs: Long = 0L,
+    /** Days of the week on which the 10-card daily goal was reached. */
+    val goalDays: Int = 0,
+    val bestRun: Int = 0,
+    val pronTotal: Int = 0,
+    val pronPerfect: Int = 0,
+)
 
 data class Progress(
     val stats: Stats = Stats(),
     val favorites: List<String> = emptyList(),
     val settings: Settings = Settings(),
     val daily: DailyUsage = DailyUsage(),
+    /** Recent weeks by their Monday date (YYYY-MM-DD). */
+    val weeks: Map<String, WeekStats> = emptyMap(),
 )
 
 /** Local-midnight date key (YYYY-MM-DD) for the daily limit counters. */
@@ -157,7 +178,38 @@ private fun bump(progress: Progress, counter: DailyCounter): DailyUsage {
         DailyCounter.FAVORITES_ADDED -> usage.copy(favoritesAdded = usage.favoritesAdded + 1)
         DailyCounter.CARDS_PRACTICED -> usage.copy(cardsPracticed = usage.cardsPracticed + 1)
         DailyCounter.RULES_OPENED -> usage.copy(rulesOpened = usage.rulesOpened + 1)
+        DailyCounter.VOICE_PRACTICED -> usage.copy(voicePracticed = usage.voicePracticed + 1)
     }
+}
+
+/** Monday of the current week (shifted back by [weeksAgo] weeks) as YYYY-MM-DD. */
+fun weekKey(weeksAgo: Int = 0): String {
+    val cal = Calendar.getInstance()
+    cal.add(Calendar.DAY_OF_MONTH, -7 * weeksAgo)
+    // Calendar: Sunday = 1 ... Saturday = 7, so Monday = 0 after this shift.
+    val sinceMonday = (cal.get(Calendar.DAY_OF_WEEK) + 5) % 7
+    cal.add(Calendar.DAY_OF_MONTH, -sinceMonday)
+    return isoDayKey(cal)
+}
+
+// German Score (0-100), most important first: cards played 40, time practiced 30, success rate 20, daily goal days 10.
+private const val SCORE_CARDS_GOAL = 250.0
+private const val SCORE_MINUTES_GOAL = 15.0
+private const val SCORE_DAYS_GOAL = 7.0
+
+fun germanScore(week: WeekStats): Int {
+    val cards = minOf(week.cards / SCORE_CARDS_GOAL, 1.0)
+    val time = minOf(week.timeMs / (SCORE_MINUTES_GOAL * 60_000.0), 1.0)
+    val success = if (week.cards > 0) week.correct.toDouble() / week.cards else 0.0
+    val days = minOf(week.goalDays / SCORE_DAYS_GOAL, 1.0)
+    return Math.round(40.0 * cards + 30.0 * time + 20.0 * success + 10.0 * days).toInt().coerceIn(0, 100)
+}
+
+private fun updateWeek(weeks: Map<String, WeekStats>, change: (WeekStats) -> WeekStats): Map<String, WeekStats> {
+    val key = weekKey()
+    val updated = weeks + (key to change(weeks[key] ?: WeekStats()))
+    val oldest = weekKey(3)
+    return updated.filterKeys { it >= oldest }
 }
 
 fun getActiveStreak(stats: Stats): Int {
@@ -176,7 +228,7 @@ private fun readLevels(st: JSONObject): Set<String> {
         if (picked.isNotEmpty()) return picked
     }
     // Older versions stored a single level (or "all").
-    return when (st.optString("level", "A1")) {
+    return when (st.optString("level", "all")) {
         "all" -> LEVEL_IDS.toSet()
         "A2" -> setOf("A2")
         "B1" -> setOf("B1")
@@ -213,6 +265,16 @@ class ProgressStore(context: Context) {
             streakDay = today
         }
         val currentRun = if (isCorrect) stats.currentRun + 1 else 0
+        val goalReachedNow = daily.cardsPracticed >= DAILY_GOAL && stats.streakDay != today
+        val weeks = updateWeek(current.weeks) { w ->
+            w.copy(
+                cards = w.cards + 1,
+                correct = w.correct + if (isCorrect) 1 else 0,
+                timeMs = w.timeMs + elapsedMs.coerceIn(0L, MAX_TIME_PER_CARD_MS),
+                bestRun = maxOf(w.bestRun, currentRun),
+                goalDays = w.goalDays + if (goalReachedNow) 1 else 0,
+            )
+        }
         write(
             current.copy(
                 stats = stats.copy(
@@ -226,6 +288,7 @@ class ProgressStore(context: Context) {
                     streakDay = streakDay,
                 ),
                 daily = daily,
+                weeks = weeks,
             )
         )
     }
@@ -238,7 +301,15 @@ class ProgressStore(context: Context) {
                 stats = s.copy(
                     pronTotal = s.pronTotal + 1,
                     pronPerfect = s.pronPerfect + if (perfect) 1 else 0,
-                )
+                ),
+                // Every recognized attempt counts toward the free daily pronunciation limit.
+                daily = bump(current, DailyCounter.VOICE_PRACTICED),
+                weeks = updateWeek(current.weeks) { w ->
+                    w.copy(
+                        pronTotal = w.pronTotal + 1,
+                        pronPerfect = w.pronPerfect + if (perfect) 1 else 0,
+                    )
+                },
             )
         )
     }
@@ -266,7 +337,7 @@ class ProgressStore(context: Context) {
     }
 
     fun resetStats() {
-        write(_progress.value.copy(stats = Stats()))
+        write(_progress.value.copy(stats = Stats(), weeks = emptyMap()))
     }
 
     fun updateSettings(transform: (Settings) -> Settings) {
@@ -300,6 +371,7 @@ class ProgressStore(context: Context) {
             val levelsArray = JSONArray()
             for (id in LEVEL_IDS) if (p.settings.levels.contains(id)) levelsArray.put(id)
             settings.put("levels", levelsArray)
+            settings.put("levelsVersion", 2)
             settings.put("reminders", p.settings.reminders)
             settings.put("readAloud", p.settings.readAloud)
 
@@ -308,6 +380,20 @@ class ProgressStore(context: Context) {
             daily.put("favoritesAdded", p.daily.favoritesAdded)
             daily.put("cardsPracticed", p.daily.cardsPracticed)
             daily.put("rulesOpened", p.daily.rulesOpened)
+            daily.put("voicePracticed", p.daily.voicePracticed)
+
+            val weeks = JSONObject()
+            for ((key, w) in p.weeks) {
+                val o = JSONObject()
+                o.put("cards", w.cards)
+                o.put("correct", w.correct)
+                o.put("timeMs", w.timeMs)
+                o.put("goalDays", w.goalDays)
+                o.put("bestRun", w.bestRun)
+                o.put("pronTotal", w.pronTotal)
+                o.put("pronPerfect", w.pronPerfect)
+                weeks.put(key, o)
+            }
 
             val favorites = JSONArray()
             for (id in p.favorites) favorites.put(id)
@@ -317,6 +403,7 @@ class ProgressStore(context: Context) {
             root.put("favorites", favorites)
             root.put("settings", settings)
             root.put("daily", daily)
+            root.put("weeks", weeks)
             return root.toString()
         }
 
@@ -331,6 +418,24 @@ class ProgressStore(context: Context) {
                 val favorites = ArrayList<String>()
                 if (fav != null) {
                     for (i in 0 until fav.length()) favorites.add(fav.getString(i))
+                }
+                val weeks = LinkedHashMap<String, WeekStats>()
+                val weeksObj = root.optJSONObject("weeks")
+                if (weeksObj != null) {
+                    val keys = weeksObj.keys()
+                    while (keys.hasNext()) {
+                        val key = keys.next()
+                        val o = weeksObj.optJSONObject(key) ?: continue
+                        weeks[key] = WeekStats(
+                            cards = o.optInt("cards", 0),
+                            correct = o.optInt("correct", 0),
+                            timeMs = o.optLong("timeMs", 0L),
+                            goalDays = o.optInt("goalDays", 0),
+                            bestRun = o.optInt("bestRun", 0),
+                            pronTotal = o.optInt("pronTotal", 0),
+                            pronPerfect = o.optInt("pronPerfect", 0),
+                        )
+                    }
                 }
                 Progress(
                     stats = if (s == null) Stats() else Stats(
@@ -347,7 +452,8 @@ class ProgressStore(context: Context) {
                     ),
                     favorites = favorites,
                     settings = if (st == null) Settings() else Settings(
-                        levels = readLevels(st),
+                        // Settings saved before "all levels" became the default are moved to it once.
+                        levels = if (st.optInt("levelsVersion", 0) >= 2) readLevels(st) else LEVEL_IDS.toSet(),
                         reminders = st.optBoolean("reminders", false),
                         readAloud = st.optBoolean("readAloud", true),
                     ),
@@ -356,7 +462,9 @@ class ProgressStore(context: Context) {
                         favoritesAdded = d.optInt("favoritesAdded", 0),
                         cardsPracticed = d.optInt("cardsPracticed", 0),
                         rulesOpened = d.optInt("rulesOpened", 0),
+                        voicePracticed = d.optInt("voicePracticed", 0),
                     ),
+                    weeks = weeks,
                 )
             } catch (e: Exception) {
                 Progress()
