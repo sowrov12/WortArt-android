@@ -36,6 +36,7 @@ import com.sowrov.germanarticlebangla.data.Word
 import com.sowrov.germanarticlebangla.util.Reminders
 import com.sowrov.germanarticlebangla.util.Speaker
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -97,7 +98,7 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
      * First launch has only the bundled word list. Practice waits (at most a few seconds) for the live list,
      * so the first card is not swapped a moment later.
      */
-    var catalogReady by mutableStateOf(repository.hasCache())
+    var catalogReady by mutableStateOf(true)
         private set
     /** Set when a grammar-rule ending is tapped: Search opens with that ending filled in. */
     var searchPreset by mutableStateOf<SearchPreset?>(null)
@@ -145,23 +146,23 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
         if (progressStore.progress.value.settings.reminders) Reminders.schedule(ctx)
     }
 
-    /** Downloads the small category images in the background so cards open instantly. */
+    private var prefetchJob: Job? = null
+
+    /**
+     * Downloads the other categories' pictures quietly, after the first card has had the network to itself:
+     * small icons first, then backgrounds, one at a time.
+     */
     private fun prefetchImages(catalog: Catalog) {
-        for (topic in catalog.topics) {
-            for (background in listOf(false, true)) {
-                val url = categoryImageUrl(topic, background) ?: continue
+        prefetchJob?.cancel()
+        prefetchJob = viewModelScope.launch {
+            delay(8000)
+            val urls = catalog.topics.mapNotNull { categoryImageUrl(it, false) } +
+                catalog.topics.mapNotNull { categoryImageUrl(it, true) }
+            for (url in urls) {
                 ctx.imageLoader.enqueue(ImageRequest.Builder(ctx).data(url).build())
+                delay(150)
             }
         }
-    }
-
-    private var session: PracticeSession? = null
-
-    /** Same key = same session (same card after switching tabs); new key = fresh shuffled deck. */
-    fun practiceSession(key: List<Any>, build: () -> List<Word>): PracticeSession {
-        val existing = session
-        if (existing != null && existing.key == key) return existing
-        return PracticeSession(key, build()).also { session = it }
     }
 
     // ----- navigation -----------------------------------------------------------------------
