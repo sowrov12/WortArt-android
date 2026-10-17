@@ -165,6 +165,15 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    private var session: PracticeSession? = null
+
+    /** Same key = same session (same card after switching tabs); new key = fresh shuffled deck. */
+    fun practiceSession(key: List<Any>, build: () -> List<Word>): PracticeSession {
+        val existing = session
+        if (existing != null && existing.key == key) return existing
+        return PracticeSession(key, build()).also { session = it }
+    }
+
     // ----- navigation -----------------------------------------------------------------------
 
     fun selectTab(value: Tab) {
